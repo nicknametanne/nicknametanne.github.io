@@ -852,6 +852,7 @@
       if (ownerBtn) {
           ownerBtn.addEventListener('click', () => {
               const OWNER_SECRET_CODE = "T@%6(@@@toilanguoi)199owner"; 
+              const CODE_RESET = "RESET@0";  // Mã xóa hết sạch điểm (Sếp có thể đổi chữ RESET@0 thành mã khác tùy ý)
               const inputCode = prompt("🔒 Vui lòng nhập mã bảo mật của Owner:");
               
               if (inputCode === null) return; 
@@ -860,8 +861,14 @@
                   localStorage.setItem('spell_total_count', 1000);
                   alert("🎉 Kích hoạt quyền Owner thành công! Web sẽ tự tải lại để mở khóa toàn bộ tính năng.");
                   location.reload(); 
-              } else {
-                  alert("❌ Sai mã bảo mật! Vui lòng thử lại.");
+              } 
+                      else if (inputCode === CODE_RESET) {
+                  localStorage.setItem('spell_total_count', 0); // Đưa điểm về 0
+                  alert("🧹 Đã xóa sạch toàn bộ số lần Spell về 0 thành công!");
+                  location.reload(); 
+              }
+              else {
+                alert("❌ Sai mã bảo mật! Vui lòng thử lại.");
               }
           });
       }
