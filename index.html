@@ -5,6 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tool spell 880 for newbie</title>
   <style>
+  /* ===== OWNER THUNDER MODE ===== */
+  #lightningLayer {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 999999;
+    overflow: visible;
+  }
+
+  .lightning-path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 1;
+    animation: lightningFade 0.28s linear forwards;
+    filter:
+      drop-shadow(0 0 4px rgba(90, 220, 255, 0.95))
+      drop-shadow(0 0 12px rgba(40, 160, 255, 0.9))
+      drop-shadow(0 0 26px rgba(20, 110, 255, 0.8));
+  }
+
+  .lightning-path.main {
+    stroke: #d9ffff;
+    stroke-width: 3.6;
+  }
+
+  .lightning-path.branch {
+    stroke: #74d9ff;
+    stroke-width: 1.8;
+    opacity: 0.85;
+  }
+
+  @keyframes lightningFade {
+    to { opacity: 0; }
+  }
+
+  .lightning-flash {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 220px;
+    height: 220px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 999998;
+    background: radial-gradient(circle,
+      rgba(180,250,255,0.75) 0%,
+      rgba(120,220,255,0.35) 25%,
+      rgba(50,160,255,0.15) 45%,
+      transparent 70%);
+    mix-blend-mode: screen;
+    animation: flashPop 0.18s ease-out forwards;
+  }
+
+  @keyframes flashPop {
+    from { opacity: 1; transform: translate(-50%, -50%) scale(0.45); }
+    to   { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+  }
+
+  .lightning-spark {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 999998;
+    background: #bff7ff;
+    box-shadow: 0 0 10px #5adfff, 0 0 18px #2f9fff;
+    animation: sparkFade 0.35s ease-out forwards;
+  }
+
+  @keyframes sparkFade {
+    to { opacity: 0; transform: scale(0.2); }
+  }
+</style>
+  <style>
+    
     :root {
       --bg: #0f1220;
       --panel: #171b2e;
@@ -298,9 +378,146 @@
         font-family: sans-serif; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         cursor: default; user-select: none;
     }
+  
+  
+
+
+
+@keyframes cosmicMove{
+    0%{background-position:0 0;}
+    100%{background-position:500px 500px;}
+}
+  /* ===== RGB MODE ===== */
+
+
+@keyframes rgbCycle{
+    0%{
+        filter: hue-rotate(0deg);
+    }
+
+    100%{
+        filter: hue-rotate(360deg);
+    }
+}
+  
+  
+  
+.rgb-unlocked .card,
+.rgb-unlocked .block,
+.rgb-unlocked textarea,
+.rgb-unlocked button,
+.rgb-unlocked .hero {
+  position: relative;
+  border-radius: 12px;
+}
+
+/* lớp viền RGB chạy quanh */
+.rgb-unlocked .card::before,
+.rgb-unlocked .block::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #8b00ff,
+    #ff0000
+  );
+/* ===== RGB LITE MODE (GIẢM LAG) ===== */
+.rgb-lite .card::before,
+.rgb-lite .block::before {
+  animation-duration: 6s !important;
+  opacity: 0.35 !important;
+}
+
+/* tắt glow nặng */
+.rgb-lite * {
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+/* giảm repaint */
+.rgb-lite {
+  filter: none !important;
+}
+  background-size: 300% 100%;
+  animation: rgbBorderRun 2s linear infinite;
+
+  /* chỉ giữ lại phần viền */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  pointer-events: none;
+}
+
+/* animation chạy màu theo viền */
+@keyframes rgbBorderRun {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 300% 50%;
+  }
+}
+
+
+@keyframes rgbCycle{
+
+    0%{ filter:hue-rotate(0deg); }
+
+    100%{ filter:hue-rotate(360deg); }
+
+}
+  /* VIỀN TO: KHÔNG ANIMATION */
+.rgb-unlocked .hero,
+.rgb-unlocked textarea {
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+/* viền RGB đứng yên */
+.rgb-unlocked .hero::after,
+.rgb-unlocked textarea::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+
+  background: linear-gradient(90deg,
+    #ff0000, #ff7f00, #ffff00,
+    #00ff00, #00ffff, #0000ff, #8b00ff);
+
+  /* KHÔNG animation */
+  opacity: 0.6;
+
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  pointer-events: none;
+}
+  .rgb-unlocked * {
+  will-change: auto;
+}
   </style>
+
 </head>
 <body>
+
 
   <div style="text-align: center; margin: 15px 0;">
       <span class="rainbow-btn">Cre: @toilanguoi Discord</span>
@@ -362,10 +579,25 @@
         </div>
 
         <div class="history-container">
-            <div class="history-title">📜 Nhật ký Spell vừa tạo (Mới nhất):</div>
-            <ul id="spellHistoryList" class="history-list">
-                <li id="emptyHistoryItem" class="history-item" style="color:#8b949e; border-left-color:#30363d;">Chưa có spell nào được ghi nhận...</li>
-            </ul>
+           <div class="history-title">
+  📜 Nhật ký Spell
+  <button id="openHistoryPanel" style="
+    margin-left:10px;
+    padding:4px 8px;
+    font-size:12px;
+    border-radius:6px;
+    border:1px solid #444;
+    background:#222;
+    color:#fff;
+    cursor:pointer;
+  ">Xem 20 lần gần nhất</button>
+</div>
+
+<ul id="spellHistoryList" class="history-list">
+  <li id="emptyHistoryItem" class="history-item" style="color:#8b949e; border-left-color:#30363d;">
+    Chưa có spell nào được ghi nhận...
+  </li>
+</ul>
         </div>
       </section>
     </section>
@@ -594,7 +826,7 @@
         $('spellCounter').innerText = currentCount;
 
         if (chuoi_ma_hoa && chuoi_ma_hoa.trim() !== "") {
-            saveHistoryData(chuoi_ma_hoa);
+           saveHistoryData(chuoi_ma_hoa, $('inputText').value.trim());
         }
         checkMilestones(currentCount);
 
@@ -605,29 +837,41 @@
         }
     }
 
-    function saveHistoryData(text) {
-        let arr = [];
-        let savedHistory = localStorage.getItem('spell_history_list');
-        if (savedHistory) arr = JSON.parse(savedHistory);
+function saveHistoryData(hex, text){ 
+   let arr = JSON.parse(localStorage.getItem('spell_history_list') || "[]");
 
-        arr.unshift(text);
-        if (arr.length > maxHistoryCount) arr.pop();
+   const time = new Date().toLocaleTimeString('vi-VN', {
+       hour: '2-digit',
+       minute: '2-digit'
+   });
 
-        localStorage.setItem('spell_history_list', JSON.stringify(arr));
+   arr.unshift({
+       hex: hex,
+       text: text,
+       time: time
+   });
 
-        const historyList = $('spellHistoryList');
-        if ($('emptyHistoryItem')) historyList.innerHTML = "";
+   if (arr.length > 20) arr = arr.slice(0, 20);
 
-        const li = document.createElement('li');
-        li.className = 'history-item';
-        li.innerText = text;
-        historyList.insertBefore(li, historyList.firstChild);
+   localStorage.setItem('spell_history_list', JSON.stringify(arr));
 
-        if (historyList.children.length > maxHistoryCount) {
-            historyList.removeChild(historyList.lastChild);
-        }
-    }
+   const historyList = $('spellHistoryList');
 
+   if ($('emptyHistoryItem')) {
+       historyList.innerHTML = "";
+   }
+
+   const li = document.createElement('li');
+   li.className = 'history-item';
+
+   li.innerText = `${hex} (${text})`;
+
+   historyList.insertBefore(li, historyList.firstChild);
+
+   if (historyList.children.length > 20) {
+       historyList.removeChild(historyList.lastChild);
+   }
+}   
     /* --- HIỆU ỨNG CHUỘT MỚI: BỤI NEON ẢO DIỆU HƠN VỒNG --- */
     function activateMouseNeonEffect() {
         const colors = ['#00ffff', '#ff00ff', '#00ff00', '#ffd700', '#ff3333', '#9ef0c2', '#7c9cff'];
@@ -680,9 +924,54 @@
         else if (chosenTheme === 'vip') document.body.classList.add('theme-vip');
         else if (chosenTheme === 'matrix') document.body.classList.add('theme-matrix');
     }
+function applyGodMode(){
 
+    if(!godModeEnabled){
+        return;
+    }
+
+    document.getElementById("spellCounter").innerText = "∞";
+
+    const box = document.getElementById("vipCounterBox");
+
+    box.style.boxShadow =
+      "0 0 25px gold";
+
+    box.style.border =
+      "2px solid gold";
+}
     /* --- RENDER GIAO DIỆN CHÍNH --- */
-    function render() {
+    
+     function saveHistory(hex, raw) {
+    let arr = JSON.parse(localStorage.getItem('spell_history_list') || '[]');
+
+    arr.unshift({
+        hex,
+        raw,
+        time: new Date().toLocaleTimeString('vi-VN', {
+            hour: '2-digit',
+            minute: '2-digit'
+        })
+    });
+
+    arr = arr.slice(0, 20);
+    localStorage.setItem('spell_history_list', JSON.stringify(arr));
+}
+                        function render() {
+                           function renderHistory() {
+    const arr = JSON.parse(localStorage.getItem('spell_history_list') || '[]');
+    const historyList = document.getElementById('spellHistoryList');
+    if (!historyList) return;
+
+    historyList.innerHTML = "";
+
+    renderHistory();(item => {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        li.innerText = `${item.hex} ( ${item.raw} ) ${item.time}`;
+        historyList.appendChild(li);
+    });
+}
       const input = normalizeInput($('inputText').value);
       if (!input) {
         $('encodedLine').textContent = 'Chưa có dữ liệu'; $('atomicList').textContent = 'Chưa có dữ liệu';
@@ -745,14 +1034,26 @@
     }
 
     $('btnSpell').addEventListener('click', () => {
-        if ($('inputText').value.trim() === "") {
-            render();
-            return;
-        }
+    pauseEffectsForSpell();
+
+    if ($('inputText').value.trim() === "") {
+        render();
+        resumeEffectsAfterSpell();
+        return;
+    }
+
+    setTimeout(() => {
         const tổng_số_byte = render();
-        const ketQuaMaHoa = $('encodedLine').textContent.split('\n')[0]; 
+        const ketQuaMaHoa = $('encodedLine').textContent.split('\n')[0];
+        const rawText = $('inputText').value.trim();
+
         xử_lý_tăng_điểm_ngầm(ketQuaMaHoa, tổng_số_byte);
-    });
+        saveHistory(ketQuaMaHoa, rawText);
+        renderHistory();
+
+        resumeEffectsAfterSpell();
+    }, 50);
+});
 
     $('btnSample').addEventListener('click', () => { $('inputText').value = 'xin chào'; render(); });
     $('btnCopy').addEventListener('click', copyResult);
@@ -793,7 +1094,27 @@
   " onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#fff';" 
     onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.color='rgba(255,255,255,0.3)';">
     ⚙️ Owner Panel
-  </button>
+  
+</button>
+<button id="thunderToggleBtn" style="
+  display:none;
+  margin-left:10px;
+  background:#001f33;
+  color:#5adfff;
+  border:1px solid #5adfff;
+  border-radius:8px;
+  padding:8px 14px;
+  cursor:pointer;
+">
+⚡ Thunder Mode: OFF
+</button>
+<button id="godModeBtn" style="display:none;">👑 God Mode: OFF</button>
+
+
+
+<button id="rgbModeBtn" style="display:none;">
+    🌈 RGB Mode: OFF
+</button>
 </div>
 
 <style>
@@ -811,11 +1132,111 @@
     font-weight: bold;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
   }
-</style>
+/* ===== RGB BORDER ANIMATION ===== */
+@keyframes rgbGlow {
+  0% {
+    box-shadow: 0 0 10px #ff0000, inset 0 0 10px #ff0000;
+    border-color: #ff0000;
+  }
+  14% {
+    box-shadow: 0 0 10px #ff7f00, inset 0 0 10px #ff7f00;
+    border-color: #ff7f00;
+  }
+  28% {
+    box-shadow: 0 0 10px #ffff00, inset 0 0 10px #ffff00;
+    border-color: #ffff00;
+  }
+  42% {
+    box-shadow: 0 0 10px #00ff00, inset 0 0 10px #00ff00;
+    border-color: #00ff00;
+  }
+  57% {
+    box-shadow: 0 0 10px #00ffff, inset 0 0 10px #00ffff;
+    border-color: #00ffff;
+  }
+  71% {
+    box-shadow: 0 0 10px #0000ff, inset 0 0 10px #0000ff;
+    border-color: #0000ff;
+  }
+  85% {
+    box-shadow: 0 0 10px #8b00ff, inset 0 0 10px #8b00ff;
+    border-color: #8b00ff;
+  }
+  100% {
+    box-shadow: 0 0 10px #ff0000, inset 0 0 10px #ff0000;
+    border-color: #ff0000;
+  }
+
+}
+.spell-lite-mode.theme-cosmic {
+  animation: none !important;
+}
+
+.rgb-lite .card::before,
+.rgb-lite .block::before,
+.rgb-lite .hero::before {
+  animation-duration: 6s !important;
+  opacity: 0.5 !important;
+}</style>
 
 <script>
+  let fpsLastTime = performance.now();
+let fpsFrames = 0;
+let fps = 60;
+let rgbAutoMode = true;
+
+function fpsMonitor() {
+  const now = performance.now();
+  fpsFrames++;
+
+  if (now - fpsLastTime >= 1000) {
+    fps = fpsFrames;
+    fpsFrames = 0;
+    fpsLastTime = now;
+
+    autoAdjustRGB();
+  }
+
+  requestAnimationFrame(fpsMonitor);
+}
+
+function autoAdjustRGB() {
+  if (!rgbAutoMode) return;
+
+  const lowFPS = fps < 35;   // ngưỡng lag
+  const body = document.body;
+
+  if (lowFPS) {
+    if (!body.classList.contains("rgb-lite")) {
+      body.classList.add("rgb-lite");
+      console.log("⚠ RGB LITE ON - FPS thấp:", fps);
+    }
+  } else {
+    if (body.classList.contains("rgb-lite")) {
+      body.classList.remove("rgb-lite");
+      console.log("✅ RGB FULL ON - FPS ổn:", fps);
+    }
+  }
+}
+  
   function HIEN_THI_DANH_HIEU_RAINBOW() {
-      let currentCount = parseInt(localStorage.getItem('spell_total_count') || 0);
+  // ===== HIỆN CÁC NÚT ĐÃ MỞ KHÓA =====
+const godBtn = document.getElementById("godModeBtn");
+const cosmicBtn = document.getElementById("cosmicModeBtn");
+const rgbBtn = document.getElementById("rgbModeBtn");
+
+if (godModeUnlocked && godBtn) {
+    godBtn.style.display = "inline-block";
+}
+
+if (cosmicUnlocked && cosmicBtn) {
+    cosmicBtn.style.display = "inline-block";
+}
+
+if (rgbUnlocked && rgbBtn) {
+    rgbBtn.style.display = "inline-block";
+}
+    let currentCount = parseInt(localStorage.getItem('spell_total_count') || 0);
       if (currentCount >= 1000) {
           let ownerTitle = document.getElementById('ownerStatusTitle');
           
@@ -836,8 +1257,85 @@
       }
   }
 
-  window.addEventListener('DOMContentLoaded', () => {
-      HIEN_THI_DANH_HIEU_RAINBOW();
+  window.addEventListener('DOMContentLoaded', () => {fpsMonitor();
+    
+    if(localStorage.getItem("rgb_mode_unlocked") === "1"){
+
+    document.getElementById("rgbModeBtn").style.display = "inline-block";
+
+}
+    const thunderBtn = document.getElementById("thunderToggleBtn");
+
+if(localStorage.getItem("owner_thunder_mode")==="1"){
+    ownerThunderMode = true;
+
+    thunderBtn.style.display = "inline-block";
+
+    thunderEnabled =
+      localStorage.getItem("thunder_enabled")==="1";
+
+    thunderBtn.innerText =
+      thunderEnabled
+      ? "⚡ Thunder Mode: ON"
+      : "⚡ Thunder Mode: OFF";
+}
+thunderBtn?.addEventListener("click", () => {
+
+    thunderEnabled = !thunderEnabled;
+
+    localStorage.setItem(
+      "thunder_enabled",
+      thunderEnabled ? "1" : "0"
+    );
+
+    thunderBtn.innerText =
+      thunderEnabled
+      ? "⚡ Thunder Mode: ON"
+      : "⚡ Thunder Mode: OFF";
+});
+// DÁN SỐ 6 NGAY DƯỚI ĐÂY
+
+document.getElementById("godModeBtn")?.addEventListener("click",()=>{
+
+    godModeEnabled = !godModeEnabled;
+
+    localStorage.setItem(
+        "god_mode_enabled",
+        godModeEnabled ? "1" : "0"
+    );
+
+    document.getElementById("godModeBtn").innerText =
+        godModeEnabled
+        ? "👑 God Mode: ON"
+        : "👑 God Mode: OFF";
+
+    applyGodMode();
+});
+   // DÁN SỐ 8 NGAY DƯỚI
+
+document.getElementById("cosmicModeBtn")?.addEventListener("click",()=>{
+
+    cosmicEnabled = !cosmicEnabled;
+
+    localStorage.setItem(
+        "cosmic_mode_enabled",
+        cosmicEnabled ? "1" : "0"
+    );
+
+    document.body.classList.toggle(
+        "theme-cosmic",
+        cosmicEnabled
+    );
+
+    document.getElementById("cosmicModeBtn").innerText =
+        cosmicEnabled
+        ? "🌌 Cosmic Mode: ON"
+        : "🌌 Cosmic Mode: OFF";
+});
+    if (localStorage.getItem("owner_thunder_mode") === "1") {
+    ownerThunderMode = true;
+}
+    HIEN_THI_DANH_HIEU_RAINBOW();
       
       // Chạy lại sau 0.5 giây đề phòng giao diện tải chậm
       setTimeout(HIEN_THI_DANH_HIEU_RAINBOW, 500);
@@ -847,33 +1345,272 @@
           checkMilestones(currentCount);
       }
 
+      if(localStorage.getItem("rgb_mode_unlocked") === "1"){
+    document.getElementById("rgbModeBtn").style.display = "inline-block";
+}
       // Logic nút bấm Owner
       const ownerBtn = document.getElementById('ownerAdminBtn');
       if (ownerBtn) {
           ownerBtn.addEventListener('click', () => {
               const OWNER_SECRET_CODE = "T@%6(@@@toilanguoi)199owner"; 
               const CODE_RESET = "RESET@0";  // Mã xóa hết sạch điểm (Sếp có thể đổi chữ RESET@0 thành mã khác tùy ý)
+              const RGB_SECRET_CODE = "R-<<>-@@--B";
               const inputCode = prompt("🔒 Vui lòng nhập mã bảo mật của Owner:");
               
               if (inputCode === null) return; 
               
               if (inputCode === OWNER_SECRET_CODE) {
-                  localStorage.setItem('spell_total_count', 1000);
-                  alert("🎉 Kích hoạt quyền Owner thành công! Web sẽ tự tải lại để mở khóa toàn bộ tính năng.");
-                  location.reload(); 
-              } 
-                      else if (inputCode === CODE_RESET) {
-                  localStorage.setItem('spell_total_count', 0); // Đưa điểm về 0
-                  alert("🧹 Đã xóa sạch toàn bộ số lần Spell về 0 thành công!");
-                  location.reload(); 
-              }
-              else {
-                alert("❌ Sai mã bảo mật! Vui lòng thử lại.");
-              }
+    ownerThunderMode = true;
+    localStorage.setItem("god_mode_unlocked", "1");
+    localStorage.setItem("cosmic_mode_unlocked", "1");
+    localStorage.setItem("owner_thunder_mode", "1");
+    localStorage.setItem('spell_total_count', 1000);
+
+    alert("⚡ OWNER THUNDER MODE ĐÃ KÍCH HOẠT!");
+    alert("🎉 Kích hoạt quyền Owner thành công! Web sẽ tự tải lại để mở khóa toàn bộ tính năng.");
+
+    location.reload();
+
+}
+else if (inputCode === RGB_SECRET_CODE) {
+
+    localStorage.setItem("rgb_mode_unlocked", "1");
+
+    alert("🌈 RGB MODE ĐÃ ĐƯỢC MỞ KHÓA!");
+
+    location.reload();
+
+}
+else if (inputCode === CODE_RESET) {
+
+    localStorage.setItem('spell_total_count', 0); // Đưa điểm về 0
+
+    alert("🧹 Đã xóa sạch toàn bộ số lần Spell về 0 thành công!");
+
+    location.reload();
+
+}
+else if (inputCode === "RESET~~OWNER'") {
+
+    // 🔥 RESET FULL (OWNER WIPE)
+    localStorage.setItem('spell_total_count', 0);
+    localStorage.removeItem('spell_last_success_time');
+    localStorage.removeItem('spell_history_list');
+
+    localStorage.removeItem('god_mode_unlocked');
+    localStorage.removeItem('god_mode_enabled');
+
+    localStorage.removeItem('cosmic_mode_unlocked');
+    localStorage.removeItem('cosmic_mode_enabled');
+
+    localStorage.removeItem('rgb_mode_unlocked');
+    localStorage.removeItem('owner_thunder_mode');
+    localStorage.removeItem('thunder_enabled');
+
+    // reset runtime variables (không ảnh hưởng code gốc)
+    ownerThunderMode = false;
+    godModeUnlocked = false;
+    godModeEnabled = false;
+    cosmicUnlocked = false;
+    cosmicEnabled = false;
+    rgbUnlocked = false;
+    thunderEnabled = false;
+
+    alert("🧹 RESET~~OWNER: Đã xóa toàn bộ quyền + spell + history!");
+    location.reload();
+}
+
+else if (inputCode === "RESET@0") {
+
+    // 🔁 RESET CHỈ SPELL COUNT
+    localStorage.setItem('spell_total_count', 0);
+    localStorage.removeItem('spell_last_success_time');
+
+    alert("🔄 RESET@0: Đã xóa số lần spell!");
+    location.reload();
+}
+else {
+    alert("❌ Sai mã bảo mật! Vui lòng thử lại.");
+}
           });
       }
   });
-</script>
+let ownerThunderMode = localStorage.getItem("owner_thunder_mode") === "1";
+let thunderEnabled = localStorage.getItem("thunder_enabled") === "1";
+let godModeUnlocked = localStorage.getItem("god_mode_unlocked") === "1";
+let godModeEnabled = localStorage.getItem("god_mode_enabled") === "1";
+
+let rgbUnlocked = localStorage.getItem("rgb_mode_unlocked") === "1";
+
+let cosmicUnlocked = localStorage.getItem("cosmic_mode_unlocked") === "1";
+let cosmicEnabled = localStorage.getItem("cosmic_mode_enabled") === "1";
+let lightningLayer = null;
+
+function ensureLightningLayer() {
+  if (!lightningLayer) {
+    lightningLayer = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    lightningLayer.id = "lightningLayer";
+    lightningLayer.setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`);
+    lightningLayer.setAttribute("preserveAspectRatio", "none");
+    document.body.appendChild(lightningLayer);
+  } else {
+    lightningLayer.setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`);
+  }
+}
+
+function makeJitteryPoints(x1, y1, x2, y2, segments = 10, offset = 18) {
+  const pts = [];
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.hypot(dx, dy) || 1;
+
+  const nx = -dy / len;
+  const ny = dx / len;
+
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    const baseX = x1 + dx * t;
+    const baseY = y1 + dy * t;
+
+    const taper = 1 - Math.abs(2 * t - 1);
+    const j = (Math.random() * 2 - 1) * offset * (0.35 + taper);
+
+    pts.push([baseX + nx * j, baseY + ny * j]);
+  }
+
+  pts[0] = [x1, y1];
+  pts[pts.length - 1] = [x2, y2];
+  return pts;
+}
+
+function addLightningPath(points, cls = "main", lifetime = 280) {
+  ensureLightningLayer();
+
+  const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+  polyline.setAttribute("class", `lightning-path ${cls}`);
+  polyline.setAttribute(
+    "points",
+    points.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")
+  );
+
+  lightningLayer.appendChild(polyline);
+  setTimeout(() => polyline.remove(), lifetime);
+}
+
+function addFlash(x, y) {
+  const flash = document.createElement("div");
+  flash.className = "lightning-flash";
+  flash.style.left = x + "px";
+  flash.style.top = y + "px";
+  document.body.appendChild(flash);
+  setTimeout(() => flash.remove(), 220);
+}
+
+function addSpark(x, y) {
+  const spark = document.createElement("div");
+  spark.className = "lightning-spark";
+  spark.style.left = (x - 3) + "px";
+  spark.style.top = (y - 3) + "px";
+  document.body.appendChild(spark);
+  setTimeout(() => spark.remove(), 400);
+}
+
+function createLightningAroundCursor(x, y) {
+  if (!ownerThunderMode) return;
+  if (!thunderEnabled) return;
+
+  addFlash(x, y);
+
+  // Sét chính từ trên xuống con trỏ
+  const startX = x + (Math.random() * 120 - 60);
+  const startY = 0;
+  addLightningPath(makeJitteryPoints(startX, startY, x, y, 12, 22), "main", 260);
+
+  // Các nhánh sét xung quanh con trỏ
+  const boltCount = 3 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < boltCount; i++) {
+    const angle = (Math.PI * 2 / boltCount) * i + (Math.random() * 0.6 - 0.3);
+    const dist = 90 + Math.random() * 120;
+    const ex = x + Math.cos(angle) * dist;
+    const ey = y + Math.sin(angle) * dist;
+
+    addLightningPath(makeJitteryPoints(x, y, ex, ey, 8, 14), "branch", 220);
+    addSpark(ex, ey);
+  }
+
+  // Tia lửa nhỏ quanh điểm click
+  for (let i = 0; i < 8; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const d = 20 + Math.random() * 80;
+    addSpark(x + Math.cos(a) * d, y + Math.sin(a) * d);
+  }
+}
+
+document.addEventListener("click", (e) => {
+  createLightningAroundCursor(e.clientX, e.clientY);
+}, true);
+
+window.addEventListener("resize", () => {
+  if (lightningLayer) {
+    lightningLayer.setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`);
+  }
+});
+const rgbBtn = document.getElementById("rgbModeBtn");
+
+rgbBtn?.addEventListener("click", () => {
+
+    document.body.classList.toggle("rgb-unlocked");
+
+    rgbBtn.innerText =
+        document.body.classList.contains("rgb-unlocked")
+        ? "🌈 RGB Mode: ON"
+        : "🌈 RGB Mode: OFF";
+
+});
+
+    
+
+
+function pauseEffectsForSpell() {
+  // giảm cosmic
+  document.body.classList.add("spell-lite-mode");
+
+  // giảm RGB nếu đang bật
+  document.body.classList.add("rgb-lite");
+}
+
+function resumeEffectsAfterSpell() {
+  setTimeout(() => {
+    document.body.classList.remove("spell-lite-mode");
+    document.body.classList.remove("rgb-lite");
+  }, 800);
+}
+// 👉 DÁN ĐOẠN NÀY CUỐI CÙNG
+function renderHistory() {
+    let savedHistory = localStorage.getItem('spell_history_list');
+    let arr = savedHistory ? JSON.parse(savedHistory) : [];
+
+    const historyList = document.getElementById('spellHistoryList');
+    if (!historyList) return;
+
+    historyList.innerHTML = "";
+
+    arr.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        li.innerText = `${item.hex} ( ${item.raw}} ) ${item.time}`;
+        historyList.appendChild(li);
+    });
+}
+
+window.addEventListener('load', () => {
+    renderHistory();
+});
+renderHistory();
+
+document.getElementById('openHistoryPanel')?.addEventListener('click', () => {
+    renderHistory();
+});
 </script>   
 </body>
 </html>
