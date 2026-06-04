@@ -82,6 +82,45 @@
   @keyframes sparkFade {
     to { opacity: 0; transform: scale(0.2); }
   }
+  .history-sidebar {
+  position: fixed;
+  top: 0;
+  right: -350px;
+  width: 320px;
+  height: 100vh;
+  background: #1e2440;
+  color: white;
+  z-index: 999999;
+  transition: right 0.3s ease;
+  box-shadow: -10px 0 25px rgba(0,0,0,0.4);
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.history-sidebar.open {
+  right: 0;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.history-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.history-sidebar li {
+  padding: 8px;
+  margin-bottom: 6px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  font-size: 13px;
+}
 </style>
   <style>
     
@@ -513,6 +552,7 @@
   .rgb-unlocked * {
   will-change: auto;
 }
+
   </style>
 
 </head>
@@ -580,7 +620,9 @@
 
         <div class="history-container">
            <div class="history-title">
+<div class="history-title">
   📜 Nhật ký Spell
+
   <button id="openHistoryPanel" style="
     margin-left:10px;
     padding:4px 8px;
@@ -590,7 +632,9 @@
     background:#222;
     color:#fff;
     cursor:pointer;
-  ">Xem 20 lần gần nhất</button>
+  ">
+    Xem 20 lần gần nhất
+  </button>
 </div>
 
 <ul id="spellHistoryList" class="history-list">
@@ -612,6 +656,14 @@
       </div>
     </section>
   </main>
+  <div id="historySidebar" class="history-sidebar">
+  <div class="history-header">
+    <h3>📜 20 Spell gần nhất</h3>
+    <button id="closeSidebar">✖</button>
+  </div>
+
+  <ul id="historySidebarList"></ul>
+</div>
 
   <div style="text-align: center; margin-top: 40px; padding-bottom: 20px; font-family: sans-serif;">
       <p style="color: #8a8f98; font-size: 14px; margin: 0;">
@@ -646,6 +698,23 @@
     const TOKEN_KEYS = ['↓   ←   del   ←   del   phân số   →   ←   catalog   ↑   ↑   ↑   ↑   ok   ok   ok ←   ←   → catalog   ↑   ↑   ↑   ok   ↑   ok   ok   →   →   →   del   del   →   9   del   →   →   →   →   →   del   0   0   catalog   ↑   ↑   ↑   ↑   ↑   ok   ↓   ↓   ↓   ok 0   2   0   8   shift   8   catalog   ↑   ↑   ↑   ↑   ↑   ↑   ok   ↓   ok   function   ↓   ok   x   function   ok   3   0   catalog   ↑   ↑   ↑   ↑   ↑   ↑   ok   tan   0   x   tool   ok   ↓   ok'];
 
     const $ = (id) => document.getElementById(id);
+    function renderTop3History() {
+    const arr = JSON.parse(localStorage.getItem('spell_history_list') || "[]");
+
+    const list = document.getElementById('spellHistoryList');
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    arr.slice(0, 3).forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+
+        li.innerText = `${item.hex || "?"} (${item.text || "?"})`;
+
+        list.appendChild(li);
+    });
+}
     const maxHistoryCount = 4;
     let isMouseNeonUnlocked = false;
     let countdownTimer = null;
@@ -719,7 +788,133 @@
     function makeStep(title, subtitle, keys) {
       return `<div class="step"><h3 class="step-title">${title}</h3><p class="step-sub">${subtitle}</p><div class="kbd-line">${keys.join(' → ')}</div></div>`;
     }
+          function normalizeHistoryItem(item) {
+  if (!item) return null;
 
+  if (typeof item === 'string') {
+    return {
+      hex: '?',
+      text: item,
+      raw: item,
+      time: ''
+    };
+  }
+
+  return {
+    hex: item.hex ?? '?',
+    text: item.text ?? item.raw ?? '',
+    raw: item.raw ?? item.text ?? '',
+    time: item.time ?? ''
+  };
+}
+
+function readHistory() {
+  try {
+    const raw = localStorage.getItem('spell_history_list');
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr.map(normalizeHistoryItem).filter(Boolean);
+  } catch (e) {
+    console.warn('History parse error:', e);
+    return [];
+  }
+}
+
+function saveHistoryData(hex, rawText) {
+  const arr = readHistory();
+  const time = new Date().toLocaleTimeString('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  arr.unshift({
+    hex: hex || '?',
+    text: rawText || '',
+    raw: rawText || '',
+    time: time
+  });
+
+  localStorage.setItem('spell_history_list', JSON.stringify(arr.slice(0, 20)));
+}
+
+function renderMiniHistory() {
+  const list = document.getElementById('spellHistoryList');
+  if (!list) return;
+
+  const arr = readHistory().slice(0, 3);
+  list.innerHTML = '';
+
+  if (!arr.length) {
+    const empty = document.createElement('li');
+    empty.id = 'emptyHistoryItem';
+    empty.className = 'history-item';
+    empty.style.color = '#8b949e';
+    empty.style.borderLeftColor = '#30363d';
+    empty.textContent = 'Chưa có spell nào được ghi nhận...';
+    list.appendChild(empty);
+    return;
+  }
+
+  arr.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'history-item';
+    li.textContent = `${item.hex} (${item.text})`;
+    list.appendChild(li);
+  });
+}
+
+function renderSidebarHistory() {
+  const list = document.getElementById('sidebarHistoryList');
+  if (!list) return;
+
+  const arr = readHistory().slice(0, 20);
+  list.innerHTML = '';
+
+  if (!arr.length) {
+    const li = document.createElement('li');
+    li.className = 'history-item';
+    li.style.color = '#8b949e';
+    li.style.borderLeftColor = '#30363d';
+    li.textContent = 'Chưa có spell nào được ghi nhận...';
+    list.appendChild(li);
+    return;
+  }
+
+  arr.forEach((item, i) => {
+    const li = document.createElement('li');
+    li.className = 'history-item';
+    li.textContent = `${i + 1}. ${item.hex} (${item.text}) — ${item.time}`;
+    list.appendChild(li);
+  });
+}
+
+function openHistorySidebar() {
+  const sidebar = document.getElementById('historySidebar');
+  const backdrop = document.getElementById('historySidebarBackdrop');
+  if (!sidebar) return;
+
+  renderSidebarHistory();
+  sidebar.classList.add('open');
+  sidebar.setAttribute('aria-hidden', 'false');
+  backdrop?.classList.add('show');
+}
+
+function closeHistorySidebar() {
+  const sidebar = document.getElementById('historySidebar');
+  const backdrop = document.getElementById('historySidebarBackdrop');
+  if (!sidebar) return;
+
+  sidebar.classList.remove('open');
+  sidebar.setAttribute('aria-hidden', 'true');
+  backdrop?.classList.remove('show');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('openHistoryPanel')?.addEventListener('click', openHistorySidebar);
+  document.getElementById('closeHistorySidebar')?.addEventListener('click', closeHistorySidebar);
+  document.getElementById('historySidebarBackdrop')?.addEventListener('click', closeHistorySidebar);
+});
     /* --- HỆ THỐNG KIỂM TRA ĐIỀU KIỆN TÍNH ĐIỂM --- */
     function loadSavedData() {
         let savedCount = localStorage.getItem('spell_total_count');
@@ -729,21 +924,46 @@
         }
         $('spellCounter').innerText = savedCount;
 
-        let savedHistory = localStorage.getItem('spell_history_list');
-        if (savedHistory) {
-            const arr = JSON.parse(savedHistory);
-            if (arr.length > 0) $('spellHistoryList').innerHTML = "";
-            arr.forEach(text => {
-                const li = document.createElement('li');
-                li.className = 'history-item';
-                li.innerText = text;
-                $('spellHistoryList').appendChild(li);
-            });
+            renderMiniHistory();{
         }
         checkMilestones(parseInt(savedCount));
         startVisualCooldownLoop();
     }
+function renderMiniHistory() {
+    const arr = JSON.parse(localStorage.getItem('spell_history_list') || '[]');
+    const box = document.getElementById('spellHistoryList');
+    if (!box) return;
 
+    box.innerHTML = '';
+
+    arr.slice(0, 3).forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        const text = item.text ?? item.raw ?? '';
+        li.innerText = `${item.hex || '?'} (${text})`;
+        box.appendChild(li);
+    });
+}
+
+function renderSidebarHistory() {
+    const arr = JSON.parse(localStorage.getItem('spell_history_list') || '[]');
+    const list = document.getElementById('sidebarHistoryList');
+    if (!list) return;
+
+    list.innerHTML = '';
+
+    arr.slice(0, 20).forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+
+        const hex = item?.hex || '?';
+        const text = item?.text || item?.raw || '';
+        const time = item?.time || '??:??';
+
+        li.innerText = `${hex} (${text}) — ${time}`;
+        list.appendChild(li);
+    });
+}
     function checkMilestones(count) {
         const counterBox = $('vipCounterBox');
         const vipOption = $('vipOption');
@@ -826,7 +1046,8 @@
         $('spellCounter').innerText = currentCount;
 
         if (chuoi_ma_hoa && chuoi_ma_hoa.trim() !== "") {
-           saveHistoryData(chuoi_ma_hoa, $('inputText').value.trim());
+           saveHistory(chuoi_ma_hoa, $('inputText').value);
+renderMiniHistory();
         }
         checkMilestones(currentCount);
 
@@ -837,41 +1058,24 @@
         }
     }
 
-function saveHistoryData(hex, text){ 
-   let arr = JSON.parse(localStorage.getItem('spell_history_list') || "[]");
+function saveHistoryData(hex, rawText) {
+    let arr = JSON.parse(localStorage.getItem('spell_history_list') || '[]');
 
-   const time = new Date().toLocaleTimeString('vi-VN', {
-       hour: '2-digit',
-       minute: '2-digit'
-   });
+    const time = new Date().toLocaleTimeString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 
-   arr.unshift({
-       hex: hex,
-       text: text,
-       time: time
-   });
+    arr.unshift({
+        hex: hex || '?',
+        text: rawText || '',
+        raw: rawText || '',
+        time: time
+    });
 
-   if (arr.length > 20) arr = arr.slice(0, 20);
-
-   localStorage.setItem('spell_history_list', JSON.stringify(arr));
-
-   const historyList = $('spellHistoryList');
-
-   if ($('emptyHistoryItem')) {
-       historyList.innerHTML = "";
-   }
-
-   const li = document.createElement('li');
-   li.className = 'history-item';
-
-   li.innerText = `${hex} (${text})`;
-
-   historyList.insertBefore(li, historyList.firstChild);
-
-   if (historyList.children.length > 20) {
-       historyList.removeChild(historyList.lastChild);
-   }
-}   
+    arr = arr.slice(0, 20);
+    localStorage.setItem('spell_history_list', JSON.stringify(arr));
+}
     /* --- HIỆU ỨNG CHUỘT MỚI: BỤI NEON ẢO DIỆU HƠN VỒNG --- */
     function activateMouseNeonEffect() {
         const colors = ['#00ffff', '#ff00ff', '#00ff00', '#ffd700', '#ff3333', '#9ef0c2', '#7c9cff'];
@@ -958,20 +1162,7 @@ function applyGodMode(){
     localStorage.setItem('spell_history_list', JSON.stringify(arr));
 }
                         function render() {
-                           function renderHistory() {
-    const arr = JSON.parse(localStorage.getItem('spell_history_list') || '[]');
-    const historyList = document.getElementById('spellHistoryList');
-    if (!historyList) return;
 
-    historyList.innerHTML = "";
-
-    renderHistory();(item => {
-        const li = document.createElement('li');
-        li.className = 'history-item';
-        li.innerText = `${item.hex} ( ${item.raw} ) ${item.time}`;
-        historyList.appendChild(li);
-    });
-}
       const input = normalizeInput($('inputText').value);
       if (!input) {
         $('encodedLine').textContent = 'Chưa có dữ liệu'; $('atomicList').textContent = 'Chưa có dữ liệu';
@@ -1049,7 +1240,7 @@ function applyGodMode(){
 
         xử_lý_tăng_điểm_ngầm(ketQuaMaHoa, tổng_số_byte);
         saveHistory(ketQuaMaHoa, rawText);
-        renderHistory();
+        
 
         resumeEffectsAfterSpell();
     }, 50);
@@ -1177,7 +1368,8 @@ function applyGodMode(){
 .rgb-lite .hero::before {
   animation-duration: 6s !important;
   opacity: 0.5 !important;
-}</style>
+}
+</style>
 
 <script>
   let fpsLastTime = performance.now();
@@ -1586,22 +1778,8 @@ function resumeEffectsAfterSpell() {
   }, 800);
 }
 // 👉 DÁN ĐOẠN NÀY CUỐI CÙNG
-function renderHistory() {
-    let savedHistory = localStorage.getItem('spell_history_list');
-    let arr = savedHistory ? JSON.parse(savedHistory) : [];
 
-    const historyList = document.getElementById('spellHistoryList');
-    if (!historyList) return;
-
-    historyList.innerHTML = "";
-
-    arr.forEach(item => {
-        const li = document.createElement('li');
-        li.className = 'history-item';
-        li.innerText = `${item.hex} ( ${item.raw}} ) ${item.time}`;
-        historyList.appendChild(li);
-    });
-}
+    renderMiniHistory();
 
 window.addEventListener('load', () => {
     renderHistory();
@@ -1609,8 +1787,89 @@ window.addEventListener('load', () => {
 renderHistory();
 
 document.getElementById('openHistoryPanel')?.addEventListener('click', () => {
-    renderHistory();
+    openHistorySidebar();
 });
+
+function openHistorySidebar() {
+    const sidebar = document.getElementById('historySidebar');
+    const list = document.getElementById('historySidebarList');
+
+    const arr = JSON.parse(localStorage.getItem('spell_history_list') || "[]");
+
+    list.innerHTML = "";
+
+    arr.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        li.innerText = `${item.hex} (${item.text})`;
+        list.appendChild(li);
+    });
+
+    sidebar.classList.add('open');
+}
+document.getElementById('closeSidebar')?.addEventListener('click', () => {
+    document.getElementById('historySidebar').classList.remove("open");
+});
+function getHistory(){
+    return JSON.parse(localStorage.getItem('spell_history_list') || '[]');
+}
+
+function saveHistory(hex, text){
+    let arr = getHistory();
+
+    arr.unshift({
+        hex,
+        text,
+        time: new Date().toLocaleTimeString('vi-VN')
+    });
+
+    arr = arr.slice(0, 20);
+
+    localStorage.setItem('spell_history_list', JSON.stringify(arr));
+}
+
+function renderMiniHistory(){
+    const list = document.getElementById('spellHistoryList');
+    if(!list) return;
+
+    const arr = getHistory().slice(0,3);
+
+    list.innerHTML = '';
+
+    arr.forEach(item=>{
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        li.innerText = `${item.hex} (${item.time})`;
+        list.appendChild(li);
+    });
+}
+
+function renderSidebarHistory(){
+    const list = document.getElementById('sidebarHistoryList');
+    if(!list) return;
+
+    const arr = getHistory().slice(0,20);
+
+    list.innerHTML = '';
+
+    arr.forEach(item=>{
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        li.innerText = `${item.hex} (${item.text}) — ${item.time}`;
+        list.appendChild(li);
+    });
+}
+
+    renderSidebarHistory();
 </script>   
+
+<div id="historySidebar" class="history-sidebar">
+  <div class="sidebar-header">
+    <h3>Lịch sử Spell</h3>
+    <button id="closeHistory">'Đang hỏng ❌</button>
+  </div>
+
+  <ul id="sidebarHistoryList"></ul>
+</div>
 </body>
 </html>
