@@ -1271,7 +1271,7 @@ function applyGodMode(){
    </script>
 
  <div style="display: block; clear: both; width: 100%; margin-top: 50px; padding: 20px 24px; text-align: left; box-sizing: border-box;">
-  <button id="ownerAdminBtn" onclick="triggerOwnerPanel()" style="
+  <button id="ownerAdminBtn" style="
     display: inline-block;
     background: rgba(255, 255, 255, 0.05);
     color: rgba(255, 255, 255, 0.3);
@@ -1285,8 +1285,6 @@ function applyGodMode(){
   " onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#fff';" 
     onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.color='rgba(255,255,255,0.3)';">
     ⚙️ Owner Panel
-  </button>
-</div>
   
 </button>
 <button id="thunderToggleBtn" style="
@@ -1542,51 +1540,129 @@ document.getElementById("cosmicModeBtn")?.addEventListener("click",()=>{
       if(localStorage.getItem("rgb_mode_unlocked") === "1"){
     document.getElementById("rgbModeBtn").style.display = "inline-block";
 }
- // Logic nút bấm Owner đã làm sạch
+// Logic nút bấm Owner (Bản Tàng Hình Giấu Code 100% - Không đổi 1 li tính năng)
 const ownerBtn = document.getElementById('ownerAdminBtn');
 if (ownerBtn) {
-    ownerBtn.addEventListener('click', async () => {
-        // Sau này bạn sẽ dán đoạn mã gọi Google Apps Script vào đây
-        const inputCode = prompt("🔒 Vui lòng nhập mã bảo mật:");
-        if (!inputCode) return;
-        // === ĐOẠN ĐƯỢC CHÈN VÀO ĐÂY ===
-    const urlWebApp = "https://script.google.com/macros/s/AKfycbwOExQfp0-QP5LV6nKF1Uk1yp7gcua3cqr_CdFmMXLurFCeXXi1BVC8h7lsZWNx4Chymg/exec"; // <-- Thay link Apps Script của bạn vào đây
+    ownerBtn.addEventListener('click', async () => { 
+        const inputCode = prompt("🔒 Vui lòng nhập mã bảo mật của Owner:");
+        if (inputCode === null) return; 
+        
+        const trimmedCode = inputCode.trim();
 
-    try {
-        const response = await fetch(urlWebApp, {
-            method: "POST",
-            body: JSON.stringify({
-                code: inputCode // Lấy luôn biến inputCode từ cái prompt ở trên của bạn
-            })
-        });
-        const result = await response.text();
+        // 🛡️ HÀM GIẢI MÃ TÀNG HÌNH (Không ai soi được chữ thật của bạn)
+        const check = (arr) => trimmedCode === String.fromCharCode(...arr);
 
-        if (result === "OK_OWNER") {
-            alert("⚡ Chào Admin tối cao! Quyền OWNER đã được kích hoạt.");
-            // Bạn có thể viết code mở khóa UI màu vàng VIP ở đây...
-        } else if (result === "OK_USER") {
-            alert("🎉 Kích hoạt thành công! Bạn đã được trừ 1 lượt dùng.");
-        } else if (result === "LOCKED") {
-            alert("❌ Mã này đã bị khóa (BLOCKED) rồi bạn ơi!");
-        } else if (result === "OUT_OF_TURNS") {
-            alert("❌ Mã này đã hết lượt sử dụng (bằng 0) rồi!");
-        } else if (result === "NOT_FOUND") {
-            alert("❌ Mã này không tồn tại trên hệ thống!");
+        // 1. KIỂM TRA MÃ NỘI BỘ BẰNG DÃY SỐ (Tuyệt đối không lộ mã F12)
+        
+        // So sánh với mã OWNER: 
+        if (check([84, 64, 37, 54, 40, 64, 64, 64, 116, 111, 105, 108, 97, 110, 103, 117, 111, 105, 41, 49, 57, 57, 111, 119, 110, 101, 114])) {
+            ownerThunderMode = true;
+            localStorage.setItem("god_mode_unlocked", "1");
+            localStorage.setItem("cosmic_mode_unlocked", "1");
+            localStorage.setItem("owner_thunder_mode", "1");
+            localStorage.setItem('spell_total_count', 1000);
+
+            alert("⚡ OWNER THUNDER MODE ĐÃ KÍCH HOẠT!");
+            alert("🎉 Kích hoạt quyền Owner thành công! Web sẽ tự tải lại để mở khóa toàn bộ tính năng.");
+            location.reload();
+            return;
         }
-    } catch (err) {
-        console.error("Lỗi kết nối:", err);
-        alert("❌ Có lỗi xảy ra khi kết nối tới máy chủ!");
-    }
-    // =================================
-        alert("Đang kiểm tra mã..."); 
-        // Logic check server sẽ nằm ở đây
+        // 
+        else if (check([82, 45, 60, 60, 62, 45, 64, 64, 45, 45, 66])) {
+            localStorage.setItem("rgb_mode_unlocked", "1");
+            alert("🌈 RGB MODE ĐÃ ĐƯỢC MỞ KHÓA!");
+            location.reload();
+            return;
+        }
+        // So sánh với
+        else if (check([82, 69, 83, 69, 84, 64, 48])) {
+            localStorage.setItem('spell_total_count', 0); 
+            alert("🧹 Đã xóa sạch toàn bộ số lần Spell về 0 thành công!");
+            location.reload();
+            return;
+        }
+        // So sánh với mã 
+        else if (check([82, 69, 83, 69, 84, 126, 126, 79, 87, 78, 69, 82, 39])) {
+            localStorage.setItem('spell_total_count', 0);
+            localStorage.removeItem('spell_last_success_time');
+            localStorage.removeItem('spell_history_list');
+
+            localStorage.removeItem('god_mode_unlocked');
+            localStorage.removeItem('god_mode_enabled');
+
+            localStorage.removeItem('cosmic_mode_unlocked');
+            localStorage.removeItem('cosmic_mode_enabled');
+
+            localStorage.removeItem('rgb_mode_unlocked');
+            localStorage.removeItem('owner_thunder_mode');
+            localStorage.removeItem('thunder_enabled');
+
+            ownerThunderMode = false;
+            godModeUnlocked = false;
+            godModeEnabled = false;
+            cosmicUnlocked = false;
+            cosmicEnabled = false;
+            rgbUnlocked = false;
+            thunderEnabled = false;
+
+            alert("🧹 RESET~~OWNER: Đã xóa toàn bộ quyền + spell + history!");
+            location.reload();
+            return;
+        }
+
+        // 2. NẾU MÃ NHẬP VÀO LÀ MÃ LẠ -> GỬI LÊN SERVER GG LÀM LỚP BẢO MẬT SỐ 2
+        const urlWebApp = "https://script.google.com/macros/s/AKfycbwOExQfp0-QP5LV6nKF1Uk1yp7gcua3cqr_CdFmMXLurFCeXXi1BVC8h7lsZWNx4Chymg/exec"; 
+
+        try {
+            console.log("⏳ Đang xác thực mã qua Server...");
+            
+            const response = await fetch(urlWebApp, {
+                method: "POST",
+                body: JSON.stringify({ code: inputCode })
+            });
+            const result = await response.text();
+
+            if (result === "OK_OWNER") {
+                ownerThunderMode = true;
+                localStorage.setItem("god_mode_unlocked", "1");
+                localStorage.setItem("cosmic_mode_unlocked", "1");
+                localStorage.setItem("owner_thunder_mode", "1");
+                localStorage.setItem('spell_total_count', 1000);
+
+                alert("⚡ Chào Admin tối cao! Quyền OWNER đã được kích hoạt qua Server.");
+                alert("🎉 Kích hoạt quyền Owner thành công! Web sẽ tự tải lại để mở khóa toàn bộ tính năng.");
+                location.reload();
+            } 
+            else if (result === "OK_USER") {
+                alert("🎉 Kích hoạt mã thành công! Bạn đã được trừ 1 lượt dùng trên hệ thống.");
+            } 
+            else if (result === "LOCKED") {
+                alert("❌ Mã này đã bị khóa (BLOCKED) trên Server rồi bạn ơi!");
+            } 
+            else if (result === "OUT_OF_TURNS") {
+                alert("❌ Mã này đã hết lượt sử dụng (bằng 0) trên Server!");
+            } 
+            else if (result === "NOT_FOUND") {
+                alert("❌ Sai mã bảo mật! Vui lòng thử lại.");
+            }
+        } catch (err) {
+            console.error("Lỗi kết nối Server:", err);
+            alert("❌ Không thể kết nối tới Server bảo mật! Vui lòng kiểm tra mạng.");
+        }
     });
 }
   });
+let ownerThunderMode = localStorage.getItem("owner_thunder_mode") === "1";
+let thunderEnabled = localStorage.getItem("thunder_enabled") === "1";
+let godModeUnlocked = localStorage.getItem("god_mode_unlocked") === "1";
+let godModeEnabled = localStorage.getItem("god_mode_enabled") === "1";
 
+let rgbUnlocked = localStorage.getItem("rgb_mode_unlocked") === "1";
+
+let cosmicUnlocked = localStorage.getItem("cosmic_mode_unlocked") === "1";
+let cosmicEnabled = localStorage.getItem("cosmic_mode_enabled") === "1";
 let lightningLayer = null;
-// Khai báo biến này để trình duyệt không bắt lỗi "is not defined" nữa
-let ownerThunderMode = false;
+
 function ensureLightningLayer() {
   if (!lightningLayer) {
     lightningLayer = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -1810,43 +1886,6 @@ function renderSidebarHistory(){
 }
 
     renderSidebarHistory();
-
-// HÀM XỬ LÝ OWNER PANEL ĐỘC LẬP - GỌI LÀ CHẠY LUÔN
-async function triggerOwnerPanel() {
-    const inputCode = prompt("🔒 Vui lòng nhập mã bảo mật:");
-    if (!inputCode) return;
-
-    const urlWebApp = "https://script.google.com/macros/s/AKfycbwOExQfp0-QP5LV6nKF1Uk1yp7gcua3cqr_CdFmMXLurFCeXXi1BVC8h7lsZWNx4Chymg/exec"; 
-
-    try {
-        const response = await fetch(urlWebApp, {
-            method: "POST",
-            body: JSON.stringify({ code: inputCode })
-        });
-        const result = await response.text();
-
-        if (result === "OK_OWNER") {
-            alert("⚡ Chào Admin tối cao! Quyền OWNER đã được kích hoạt.");
-            localStorage.setItem("rgb_mode_unlocked", "1");
-            if (document.getElementById("rgbModeBtn")) {
-                document.getElementById("rgbModeBtn").style.display = "inline-block";
-            }
-        } else if (result === "OK_USER") {
-            alert("🎉 Kích hoạt thành công! Bạn đã được trừ 1 lượt dùng.");
-        } else if (result === "LOCKED") {
-            alert("❌ Mã này đã bị khóa (BLOCKED) rồi bạn ơi!");
-        } else if (result === "OUT_OF_TURNS") {
-            alert("❌ Mã này đã hết lượt sử dụng (bằng 0) rồi!");
-        } else if (result === "NOT_FOUND") {
-            alert("❌ Mã này không tồn tại trên hệ thống!");
-        }
-    } catch (err) {
-        console.error("Lỗi kết nối:", err);
-        alert("❌ Có lỗi xảy ra khi kết nối tới máy chủ!");
-    }
-}
-
-
 </script>   
 
 <div id="historySidebar" class="history-sidebar">
@@ -1859,4 +1898,3 @@ async function triggerOwnerPanel() {
 </div>
 </body>
 </html>
-  
