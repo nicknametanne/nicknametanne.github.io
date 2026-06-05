@@ -1547,88 +1547,32 @@ document.getElementById("cosmicModeBtn")?.addEventListener("click",()=>{
       if(localStorage.getItem("rgb_mode_unlocked") === "1"){
     document.getElementById("rgbModeBtn").style.display = "inline-block";
 }
-// Logic nút bấm Owner (Bản Tàng Hình Giấu Code 100% - Không đổi 1 li tính năng)
+// Logic nút bấm bảo mật (Đã đồng bộ 100% với Server Google Sheet mới)
 const ownerBtn = document.getElementById('ownerAdminBtn');
 if (ownerBtn) {
     ownerBtn.addEventListener('click', async () => { 
-        const inputCode = prompt("🔒 Vui lòng nhập mã bảo mật của Owner:");
+        const inputCode = prompt("🔒 Vui lòng nhập mã bảo mật:");
         if (inputCode === null) return; 
         
         const trimmedCode = inputCode.trim();
 
-        // 🛡️ HÀM GIẢI MÃ TÀNG HÌNH (Không ai soi được chữ thật của bạn)
-        const check = (arr) => trimmedCode === String.fromCharCode(...arr);
-
-        // 1. KIỂM TRA MÃ NỘI BỘ BẰNG DÃY SỐ (Tuyệt đối không lộ mã F12)
-        
-        // So sánh với mã OWNER: 
-        if (check([84, 64, 37, 33, 35, 38, 42, 42, 126, 126, 40, 91, 123, 64, 64, 116, 111, 105, 108, 97, 110, 103, 117, 111, 105, 125, 93, 41, 60, 60, 60, 62, 62, 62, 70, 120, 56, 56, 48, 61, 61, 111, 119, 110, 101, 114, 59, 59, 34, 48, 34])) {
-            ownerThunderMode = true;
-            localStorage.setItem("god_mode_unlocked", "1");
-            localStorage.setItem("cosmic_mode_unlocked", "1");
-            localStorage.setItem("owner_thunder_mode", "1");
-            localStorage.setItem('spell_total_count', 1000);
-
-            alert("⚡ OWNER THUNDER MODE ĐÃ KÍCH HOẠT!");
-            alert("🎉 Kích hoạt quyền Owner thành công! Web sẽ tự tải lại để mở khóa toàn bộ tính năng.");
-            location.reload();
-            return;
-        }
-        // 
-        else if (check([82, 45, 60, 60, 62, 45, 64, 64, 45, 45, 66])) {
-            localStorage.setItem("rgb_mode_unlocked", "1");
-            alert("🌈 RGB MODE ĐÃ ĐƯỢC MỞ KHÓA!");
-            location.reload();
-            return;
-        }
-        // So sánh với
-        else if (check([82, 69, 83, 69, 84, 64, 48])) {
-            localStorage.setItem('spell_total_count', 0); 
-            alert("🧹 Đã xóa sạch toàn bộ số lần Spell về 0 thành công!");
-            location.reload();
-            return;
-        }
-        // So sánh với mã 
-        else if (check([82, 69, 83, 69, 84, 126, 126, 79, 87, 78, 69, 82, 39])) {
-            localStorage.setItem('spell_total_count', 0);
-            localStorage.removeItem('spell_last_success_time');
-            localStorage.removeItem('spell_history_list');
-
-            localStorage.removeItem('god_mode_unlocked');
-            localStorage.removeItem('god_mode_enabled');
-
-            localStorage.removeItem('cosmic_mode_unlocked');
-            localStorage.removeItem('cosmic_mode_enabled');
-
-            localStorage.removeItem('rgb_mode_unlocked');
-            localStorage.removeItem('owner_thunder_mode');
-            localStorage.removeItem('thunder_enabled');
-
-            ownerThunderMode = false;
-            godModeUnlocked = false;
-            godModeEnabled = false;
-            cosmicUnlocked = false;
-            cosmicEnabled = false;
-            rgbUnlocked = false;
-            thunderEnabled = false;
-
-            alert("🧹 RESET~~OWNER: Đã xóa toàn bộ quyền + spell + history!");
-            location.reload();
-            return;
-        }
-
-        // 2. NẾU MÃ NHẬP VÀO LÀ MÃ LẠ -> GỬI LÊN SERVER GG LÀM LỚP BẢO MẬT SỐ 2
+        // Đường dẫn Web App kết nối tới Google Apps Script của bạn
         const urlWebApp = "https://script.google.com/macros/s/AKfycbwOExQfp0-QP5LV6nKF1Uk1yp7gcua3cqr_CdFmMXLurFCeXXi1BVC8h7lsZWNx4Chymg/exec"; 
 
         try {
-            console.log("⏳ Đang xác thực mã qua Server...");
+            console.log("⏳ Đang gửi mã xác thực lên Server...");
             
             const response = await fetch(urlWebApp, {
                 method: "POST",
-                body: JSON.stringify({ code: inputCode })
+                body: JSON.stringify({ code: trimmedCode }) // Gửi mã đã loại bỏ khoảng trắng thừa
             });
             const result = await response.text();
 
+            // ---------------------------------------------------------------
+            // XỬ LÝ CÁC TÍN HIỆU ĐẶC BIỆT TỪ SERVER TRẢ VỀ
+            // ---------------------------------------------------------------
+
+            // 1. KÍCH HOẠT QUYỀN OWNER
             if (result === "OK_OWNER") {
                 ownerThunderMode = true;
                 localStorage.setItem("god_mode_unlocked", "1");
@@ -1636,10 +1580,57 @@ if (ownerBtn) {
                 localStorage.setItem("owner_thunder_mode", "1");
                 localStorage.setItem('spell_total_count', 1000);
 
-                alert("⚡ Chào Admin tối cao! Quyền OWNER đã được kích hoạt qua Server.");
+                alert("⚡ OWNER THUNDER MODE ĐÃ KÍCH HOẠT QUA SERVER!");
                 alert("🎉 Kích hoạt quyền Owner thành công! Web sẽ tự tải lại để mở khóa toàn bộ tính năng.");
                 location.reload();
             } 
+            
+            // 2. KÍCH HOẠT RGB MODE
+            else if (result === "OK_RGB") {
+                localStorage.setItem("rgb_mode_unlocked", "1");
+                
+                alert("🌈 RGB MODE ĐÃ ĐƯỢC MỞ KHÓA QUA SERVER!");
+                location.reload();
+            }
+            
+            // 3. LỆNH "Ko có đâu :>"
+            else if (result === "OK_RESET_0") {
+                localStorage.setItem('spell_total_count', 0); 
+                
+                alert("🧹 Đã xóa sạch toàn bộ số lần Spell về 0 thành công!");
+                location.reload();
+            }
+            
+            // 4. LỆNH "Ko có đâu :>"
+            else if (result === "OK_RESET_OWNER") {
+                // Xóa dữ liệu lưu trữ liên quan trong localStorage
+                localStorage.setItem('spell_total_count', 0);
+                localStorage.removeItem('spell_last_success_time');
+                localStorage.removeItem('spell_history_list');
+                localStorage.removeItem('god_mode_unlocked');
+                localStorage.removeItem('god_mode_enabled');
+                localStorage.removeItem('cosmic_mode_unlocked');
+                localStorage.removeItem('cosmic_mode_enabled');
+                localStorage.removeItem('rgb_mode_unlocked');
+                localStorage.removeItem('owner_thunder_mode');
+                localStorage.removeItem('thunder_enabled');
+
+                // Trả các biến trạng thái trong code về trạng thái ban đầu
+                ownerThunderMode = false;
+                godModeUnlocked = false;
+                godModeEnabled = false;
+                cosmicUnlocked = false;
+                cosmicEnabled = false;
+                rgbUnlocked = false;
+                thunderEnabled = false;
+
+                alert("🧹 RESET~~OWNER: Đã xóa toàn bộ quyền + spell + history qua Server!");
+                location.reload();
+            }
+
+            // ---------------------------------------------------------------
+            // XỬ LÝ CÁC MÃ NGƯỜI DÙNG THƯỜNG TRÊN GOOGLE SHEET
+            // ---------------------------------------------------------------
             else if (result === "OK_USER") {
                 alert("🎉 Kích hoạt mã thành công! Bạn đã được trừ 1 lượt dùng trên hệ thống.");
             } 
@@ -1652,6 +1643,7 @@ if (ownerBtn) {
             else if (result === "NOT_FOUND") {
                 alert("❌ Sai mã bảo mật! Vui lòng thử lại.");
             }
+            
         } catch (err) {
             console.error("Lỗi kết nối Server:", err);
             alert("❌ Không thể kết nối tới Server bảo mật! Vui lòng kiểm tra mạng.");
