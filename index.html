@@ -558,6 +558,347 @@
 </head>
 <body>
 
+<!-- ===== FIREBASE AUTH OVERLAY ===== -->
+<div id="authOverlay" style="
+  position:fixed;inset:0;z-index:9999999;
+  background:linear-gradient(135deg,#0a0d1a 0%,#111424 60%,#1a0a2e 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:Inter,system-ui,sans-serif;
+">
+  <div id="authBox" style="
+    background:linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:22px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.5);
+    padding:36px 32px;
+    width:100%;max-width:420px;
+    display:flex;flex-direction:column;gap:14px;
+  ">
+    <div style="text-align:center;margin-bottom:4px;">
+      <div style="
+        font-size:28px;font-weight:900;letter-spacing:0.5px;
+        background:linear-gradient(45deg,#ff0000,#ff7f00,#ffff00,#00ff00,#0000ff,#8b00ff);
+        background-size:300% 300%;animation:rbAuth 5s ease infinite;
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      ">Tool Spell 880</div>
+      <p style="color:#8a8f98;font-size:13px;margin:4px 0 0;">Đăng nhập để tiếp tục</p>
+    </div>
+
+    <div id="authNotice" style="display:none;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;text-align:center;"></div>
+
+    <!-- Tab switch -->
+    <div style="display:flex;gap:0;background:rgba(0,0,0,0.3);border-radius:12px;padding:3px;">
+      <button id="tabLogin" onclick="switchTab('login')" style="
+        flex:1;border:0;border-radius:9px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;
+        background:linear-gradient(135deg,#8aa4ff,#aef1c8);color:#0d1020;transition:all 0.2s;
+      ">Đăng Nhập</button>
+      <button id="tabRegister" onclick="switchTab('register')" style="
+        flex:1;border:0;border-radius:9px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;
+        background:transparent;color:#8a8f98;transition:all 0.2s;
+      ">Đăng Ký</button>
+    </div>
+
+    <div id="formLogin" style="display:flex;flex-direction:column;gap:12px;">
+      <input id="loginEmail" type="email" placeholder="📧 Email" list="userSuggestions"style="
+        background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.1);
+        border-radius:12px;padding:12px 15px;color:#eef2ff;font-size:14px;outline:none;
+        width:100%;box-sizing:border-box;
+      " onfocus="this.style.borderColor='rgba(124,156,255,0.75)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      <input id="loginPassword" type="password" placeholder="🔒 Mật khẩu" style="
+        background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.1);
+        border-radius:12px;padding:12px 15px;color:#eef2ff;font-size:14px;outline:none;
+        width:100%;box-sizing:border-box;
+      " onfocus="this.style.borderColor='rgba(124,156,255,0.75)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+        onkeydown="if(event.key==='Enter')doLogin()"/>
+      <button onclick="doLogin()" style="
+        border:0;border-radius:14px;padding:13px;font-weight:700;cursor:pointer;
+        color:#0d1020;background:linear-gradient(135deg,#8aa4ff,#aef1c8);font-size:14px;
+        transition:transform 0.15s,opacity 0.15s;
+      " onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+        🚀 Đăng Nhập
+      </button>
+      <div style="text-align:center;">
+        <span style="color:#8a8f98;font-size:12px;">Hoặc đăng nhập bằng</span>
+      </div>
+      <button onclick="doGoogleLogin()" style="
+        border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:11px;font-weight:600;cursor:pointer;
+        color:#eef2ff;background:rgba(255,255,255,0.07);font-size:13px;
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        transition:background 0.2s;
+      " onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:18px;height:18px;" alt="G"/>
+        Google
+      </button>
+    </div>
+
+    <div id="formRegister" style="display:none;flex-direction:column;gap:12px;">
+      <input id="regEmail" type="email" placeholder="📧 Email (Viết bừa cũng được)" style="
+        background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.1);
+        border-radius:12px;padding:12px 15px;color:#eef2ff;font-size:14px;outline:none;
+        width:100%;box-sizing:border-box;
+      " onfocus="this.style.borderColor='rgba(124,156,255,0.75)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      <input id="regPassword" type="password" placeholder="🔒 Mật khẩu (ít nhất 6 ký tự)" style="
+        background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.1);
+        border-radius:12px;padding:12px 15px;color:#eef2ff;font-size:14px;outline:none;
+        width:100%;box-sizing:border-box;
+      " onfocus="this.style.borderColor='rgba(124,156,255,0.75)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+        onkeydown="if(event.key==='Enter')doRegister()"/>
+      <input id="regPassword2" type="password" placeholder="🔒 Xác nhận mật khẩu" style="
+        background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.1);
+        border-radius:12px;padding:12px 15px;color:#eef2ff;font-size:14px;outline:none;
+        width:100%;box-sizing:border-box;
+      " onfocus="this.style.borderColor='rgba(124,156,255,0.75)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+        onkeydown="if(event.key==='Enter')doRegister()"/>
+      <button onclick="doRegister()" style="
+        border:0;border-radius:14px;padding:13px;font-weight:700;cursor:pointer;
+        color:#0d1020;background:linear-gradient(135deg,#8aa4ff,#aef1c8);font-size:14px;
+        transition:transform 0.15s,opacity 0.15s;
+      " onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+        ✨ Đăng Ký
+      </button>
+    </div>
+
+    <p style="text-align:center;color:#8a8f98;font-size:11px;margin:0;">
+      Bằng cách đăng nhập, bạn đồng ý với điều khoản sử dụng của Tool Spell 880
+    </p>
+  </div>
+</div>
+
+<!-- User info bar (hiển thị sau login) -->
+<div id="userInfoBar" style="
+  display:none;
+  position:fixed;top:0;left:0;right:0;z-index:999998;
+  background:rgba(10,12,20,0.95);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:8px 20px;
+  display:none;
+  align-items:center;justify-content:space-between;
+  font-family:Inter,system-ui,sans-serif;
+">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <img id="userAvatar" src="" style="width:28px;height:28px;border-radius:50%;display:none;" alt=""/>
+    <span style="color:#eef2ff;font-size:13px;font-weight:600;" id="userEmailDisplay"></span>
+    <span id="userRoleBadge" style="
+      background:linear-gradient(135deg,#8aa4ff,#aef1c8);
+      color:#0d1020;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;
+    ">User</span>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    
+    <button id="btnEnterCode" onclick="showCodeModal()" style="
+      border:0;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;
+      background:linear-gradient(135deg,#8aa4ff,#aef1c8);color:#0d1020;
+    "> Nhập Code</button>
+    <button id="btnControlPanel" onclick="showControlPanel()" style="
+      display:none;
+      border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;
+      background:rgba(255,255,255,0.08);color:#eef2ff;
+    ">⚙️ Control Panel</button>
+    <button onclick="doLogout()" style="
+      border:1px solid rgba(255,100,100,0.4);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;
+      background:rgba(255,100,100,0.1);color:#ff8f8f;
+    ">🚪 Đăng Xuất</button>
+  </div>
+</div>
+
+<!-- CODE MODAL -->
+<div id="codeModal" style="
+  display:none;position:fixed;inset:0;z-index:9999998;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);
+  align-items:center;justify-content:center;
+">
+  <div style="
+    background:linear-gradient(180deg,rgba(30,36,64,0.98),rgba(15,18,32,0.98));
+    border:1px solid rgba(255,255,255,0.12);border-radius:20px;
+    padding:28px;width:90%;max-width:360px;
+    display:flex;flex-direction:column;gap:14px;
+  ">
+    <h3 style="margin:0;color:#eef2ff;text-align:center;">🎁 Nhập Mã Code</h3>
+    <div id="codeNotice" style="display:none;padding:10px;border-radius:8px;font-size:13px;text-align:center;font-weight:600;"></div>
+    <input id="codeInput" type="text" placeholder="Nhập mã code..." style="
+      background:rgba(10,12,20,0.9);border:1px solid rgba(255,255,255,0.15);
+      border-radius:12px;padding:12px 15px;color:#eef2ff;font-size:14px;outline:none;
+      width:100%;box-sizing:border-box;text-transform:uppercase;letter-spacing:2px;
+    " onfocus="this.style.borderColor='rgba(124,156,255,0.75)'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'"/>
+    <div style="display:flex;gap:10px;">
+      <button onclick="submitCode()" style="
+        flex:1;border:0;border-radius:12px;padding:11px;font-weight:700;cursor:pointer;
+        background:linear-gradient(135deg,#8aa4ff,#aef1c8);color:#0d1020;
+      ">✅ Xác Nhận</button>
+      <button onclick="hideCodeModal()" style="
+        flex:1;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:11px;font-weight:700;cursor:pointer;
+        background:transparent;color:#eef2ff;
+      ">❌ Huỷ</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROL PANEL MODAL -->
+<div id="controlPanelModal" style="
+  display:none;position:fixed;inset:0;z-index:9999998;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);
+  align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 0;
+">
+  <div style="
+    background:linear-gradient(180deg,rgba(25,30,55,0.99),rgba(12,15,28,0.99));
+    border:1px solid rgba(255,255,255,0.12);border-radius:22px;
+    padding:28px;width:95%;max-width:700px;margin:auto;
+    display:flex;flex-direction:column;gap:16px;
+  ">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 style="margin:0;color:#eef2ff;">⚙️ Control Panel</h2>
+      <button onclick="hideControlPanel()" style="
+        border:0;background:rgba(255,100,100,0.15);color:#ff8f8f;
+        border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;
+      ">✖ Đóng</button>
+    </div>
+    <div id="cpNotice" style="display:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;"></div>
+
+    <!-- Tabs CP -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button class="cp-tab-btn" onclick="switchCpTab('users')" style="
+        border:0;border-radius:9px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;
+        background:linear-gradient(135deg,#8aa4ff,#aef1c8);color:#0d1020;
+      ">👥 Người Dùng</button>
+      <button class="cp-tab-btn" onclick="switchCpTab('notify')" style="
+        border:1px solid rgba(255,255,255,0.15);border-radius:9px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;
+        background:transparent;color:#8a8f98;
+      ">📢 Thông Báo</button>
+      <button class="cp-tab-btn" onclick="switchCpTab('codes')" id="cpTabCodes" style="
+        display:none;border:1px solid rgba(255,255,255,0.15);border-radius:9px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;
+        background:transparent;color:#8a8f98;
+      ">🎁 Quản Lý Code</button>
+      <button class="cp-tab-btn" onclick="switchCpTab('logs')" style="
+        border:1px solid rgba(255,255,255,0.15);border-radius:9px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;
+        background:transparent;color:#8a8f98;
+      ">📜 Nhật Ký</button>
+      <button class="cp-tab-btn" onclick="switchCpTab('settings')" id="cpTabSettings" style="
+        display:none;border:1px solid rgba(255,255,255,0.15);border-radius:9px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;
+        background:transparent;color:#8a8f98;
+      ">🔧 Cài Đặt HT</button>
+    </div>
+
+    <!-- Tab Users -->
+    <div id="cpTabUsers" style="display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;gap:8px;">
+        <input id="cpSearchInput" type="text" placeholder="Tìm kiếm email..." style="
+          flex:1;background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.12);
+          border-radius:10px;padding:9px 14px;color:#eef2ff;font-size:13px;outline:none;
+        "/>
+        <button onclick="cpSearchUser()" style="
+          border:0;border-radius:10px;padding:9px 16px;font-weight:700;cursor:pointer;
+          background:linear-gradient(135deg,#8aa4ff,#aef1c8);color:#0d1020;font-size:13px;
+        ">🔍 Tìm</button>
+      </div>
+      <div id="cpUserResults" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;"></div>
+    </div>
+
+    <!-- Tab Notify -->
+    <div id="cpTabNotify" style="display:none;flex-direction:column;gap:12px;">
+      <textarea id="cpNotifyText" placeholder="Nội dung thông báo..." style="
+        background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.12);
+        border-radius:12px;padding:12px;color:#eef2ff;font-size:13px;outline:none;
+        min-height:100px;resize:vertical;width:100%;box-sizing:border-box;
+      "></textarea>
+      <div style="display:flex;gap:8px;">
+        <button onclick="cpSendNotify(false)" style="
+          flex:1;border:0;border-radius:10px;padding:10px;font-weight:700;cursor:pointer;
+          background:linear-gradient(135deg,#8aa4ff,#aef1c8);color:#0d1020;
+        ">📢 Gửi Thông Báo</button>
+        <button onclick="cpSendNotify(true)" id="cpPinBtn" style="
+          display:none;
+          flex:1;border:0;border-radius:10px;padding:10px;font-weight:700;cursor:pointer;
+          background:linear-gradient(135deg,#ffd700,#ff9900);color:#0d1020;
+        ">📌 Gửi + Ghim</button>
+      </div>
+      <div id="cpPinnedArea" style="display:none;"></div>
+    </div>
+
+    <!-- Tab Codes -->
+    <div id="cpTabCodes" style="display:none;flex-direction:column;gap:12px;">
+      <h4 style="margin:0;color:#eef2ff;">Tạo Code Mới</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <input id="cpCodeName" type="text" placeholder="Tên code (VD: WELCOME2026)" style="
+          background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.12);
+          border-radius:10px;padding:9px 14px;color:#eef2ff;font-size:13px;outline:none;
+          text-transform:uppercase;
+        "/>
+        <select id="cpCodeType" style="
+          background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.12);
+          border-radius:10px;padding:9px;color:#eef2ff;font-size:13px;outline:none;
+        ">
+          <option value="coin">Coin</option>
+          <option value="avatar">Avatar đặc biệt</option>
+          <option value="badge">Huy hiệu</option>
+        </select>
+        <input id="cpCodeReward" type="text" placeholder="Phần thưởng (VD: 100)" style="
+          background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.12);
+          border-radius:10px;padding:9px 14px;color:#eef2ff;font-size:13px;outline:none;
+        "/>
+        <input id="cpCodeMax" type="number" placeholder="Số lượt tối đa (0=unlimited)" style="
+          background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.12);
+          border-radius:10px;padding:9px 14px;color:#eef2ff;font-size:13px;outline:none;
+        "/>
+        <input id="cpCodeExpiry" type="date" style="
+          background:rgba(10,12,20,0.8);border:1px solid rgba(255,255,255,0.12);
+          border-radius:10px;padding:9px;color:#eef2ff;font-size:13px;outline:none;
+          grid-column:1/-1;
+        "/>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <label style="display:flex;align-items:center;gap:5px;color:#eef2ff;font-size:13px;font-weight:normal;">
+          <input type="checkbox" id="cpCodeUserOnly" checked/> Chỉ User thường
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;color:#eef2ff;font-size:13px;font-weight:normal;">
+          <input type="checkbox" id="cpCodeOnePerUser" checked/> Mỗi TK nhập 1 lần
+        </label>
+      </div>
+      <button onclick="cpCreateCode()" style="
+        border:0;border-radius:12px;padding:11px;font-weight:700;cursor:pointer;
+        background:linear-gradient(135deg,#8aa4ff,#aef1c8);color:#0d1020;
+      ">➕ Tạo Code</button>
+      <h4 style="margin:0;color:#eef2ff;">Danh Sách Code</h4>
+      <div id="cpCodeList" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <!-- Tab Logs -->
+    <div id="cpTabLogs" style="display:none;flex-direction:column;gap:8px;">
+      <div id="cpLogsList" style="max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <!-- Tab Settings -->
+    <div id="cpTabSettings" style="display:none;flex-direction:column;gap:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="cpSystemToggles"></div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS DISPLAY -->
+<div id="notifyBanner" style="
+  display:none;position:fixed;top:52px;left:0;right:0;z-index:999997;
+  background:linear-gradient(90deg,rgba(124,156,255,0.15),rgba(158,240,194,0.10));
+  border-bottom:1px solid rgba(124,156,255,0.25);
+  padding:10px 20px;
+  font-size:13px;color:#eef2ff;
+  font-family:Inter,system-ui,sans-serif;
+  display:none;
+  align-items:center;gap:10px;
+">
+  <span>📢</span>
+  <span id="notifyBannerText" style="flex:1;"></span>
+  <button onclick="document.getElementById('notifyBanner').style.display='none'" style="
+    border:0;background:transparent;color:#8a8f98;cursor:pointer;font-size:16px;
+  ">✖</button>
+</div>
+
+<style>
+@keyframes rbAuth {
+  0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}
+}
+</style>
+
+
 
   <div style="text-align: center; margin: 15px 0;">
       <span class="rainbow-btn">Cre: @toilanguoi Discord</span>
@@ -1379,6 +1720,7 @@ function applyGodMode(){
 </style>
 
 <script>
+  
   let fpsLastTime = performance.now();
 let fpsFrames = 0;
 let fps = 60;
@@ -1895,5 +2237,690 @@ function renderSidebarHistory(){
 
   <ul id="sidebarHistoryList"></ul>
 </div>
+
+<!-- ===== FIREBASE SDK ===== -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, getDocs, addDoc, serverTimestamp, where, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4PxgTtVwWcURuZSX1fs_vpatmJ2rADbM",
+    authDomain: "spell-67687.firebaseapp.com",
+    projectId: "spell-67687",
+    storageBucket: "spell-67687.firebasestorage.app",
+    messagingSenderId: "1014658911852",
+    appId: "1:1014658911852:web:8495e034bec3266dfa1249",
+    measurementId: "G-HRHJ0FMVXY"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const googleProvider = new GoogleAuthProvider();
+
+  // ===== EXPOSE GLOBALS =====
+  window._fbAuth = auth;
+  window._fbDb = db;
+  window._fbGoogleProvider = googleProvider;
+  window._fbFns = {
+    createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
+    onAuthStateChanged, signInWithPopup, updatePassword,
+    doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit,
+    getDocs, addDoc, serverTimestamp, where, increment, deleteDoc
+  };
+
+  // ===== SYSTEM SETTINGS DEFAULTS =====
+  async function getSystemSettings() {
+    const ref = doc(db, 'system', 'settings');
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        loginLocked: false,
+        registerLocked: false,
+        avatarLocked: false,
+        discordLocked: false
+      });
+      return { loginLocked:false, registerLocked:false, avatarLocked:false, discordLocked:false };
+    }
+    return snap.data();
+  }
+
+  // ===== AUTH STATE =====
+  let currentUser = null;
+  let currentUserData = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUser = user;
+      const uRef = doc(db, 'users', user.uid);
+      let snap = await getDoc(uRef);
+
+      if (!snap.exists()) {
+        const settings = await getSystemSettings();
+        if (settings.registerLocked) {
+          await signOut(auth);
+          showAuthNotice('❌ Đăng ký hiện đang bị khóa bởi quản trị viên.', false);
+          return;
+        }
+        // Create user document
+        await setDoc(uRef, {
+          email: user.email,
+          role: 'user',
+          hasSupport: false,
+          coin: 0,
+          avatar: user.photoURL || '',
+          discord: '',
+          banned: false,
+          banExpiry: null,
+          createdAt: serverTimestamp(),
+          usedCodes: []
+        });
+        snap = await getDoc(uRef);
+      }
+
+      const settings = await getSystemSettings();
+      if (settings.loginLocked) {
+        await signOut(auth);
+        showAuthNotice('❌ Hệ thống đang tạm khóa đăng nhập. Vui lòng thử lại sau.', false);
+        return;
+      }
+
+      currentUserData = snap.data();
+
+      // Check ban
+      if (currentUserData.banned) {
+        const now = new Date();
+        const expiry = currentUserData.banExpiry ? currentUserData.banExpiry.toDate() : null;
+        if (!expiry || now < expiry) {
+          const msg = expiry ? `Tài khoản bị ban đến ${expiry.toLocaleString('vi-VN')}` : 'Tài khoản bị ban vĩnh viễn';
+          await signOut(auth);
+          showAuthNotice('🚫 ' + msg, false);
+          return;
+        } else {
+          // Ban expired, unban
+          await updateDoc(uRef, { banned: false, banExpiry: null });
+          currentUserData.banned = false;
+        }
+      }
+
+      window._currentUser = currentUser;
+      window._currentUserData = currentUserData;
+
+      // Hide auth overlay, show app
+      document.getElementById('authOverlay').style.display = 'none';
+      const bar = document.getElementById('userInfoBar');
+      bar.style.display = 'flex';
+      document.getElementById('userEmailDisplay').textContent = user.email;
+      
+
+      // Set avatar
+      if (user.photoURL) {
+        const av = document.getElementById('userAvatar');
+        av.src = user.photoURL;
+        av.style.display = 'block';
+      }
+
+      // Set role badge
+const role = currentUserData.role || 'user';
+const hasSupport = currentUserData.hasSupport || false;
+
+const badge = document.getElementById('userRoleBadge');
+const cpBtn = document.getElementById('btnControlPanel');
+
+// Mặc định ẩn
+cpBtn.style.display = 'none';
+
+if (role === 'owner') {
+    badge.textContent = '👑 Owner';
+    badge.style.background = 'linear-gradient(135deg,#ffd700,#ff9900)';
+
+    cpBtn.style.display = 'inline-block';
+
+    document.getElementById('cpTabCodes').style.display = 'inline-flex';
+    document.getElementById('cpTabSettings').style.display = 'inline-flex';
+    document.getElementById('cpPinBtn').style.display = 'inline-block';
+
+} else if (role === 'dev') {
+    badge.textContent = '💻 Dev';
+    badge.style.background = 'linear-gradient(135deg,#5adfff,#2f9fff)';
+
+    if (hasSupport) {
+        cpBtn.style.display = 'inline-block';
+    }
+
+} else {
+    badge.textContent = '👤 User';
+    badge.style.background = 'linear-gradient(135deg,#8aa4ff,#aef1c8)';
+}
+
+      // Adjust body top padding for bar
+      document.body.style.paddingTop = '56px';
+
+      // Load notification
+      await loadNotification();
+
+      // Log login
+      await addLog('login', user.email, 'Đăng nhập thành công');
+    } else {
+      currentUser = null;
+      currentUserData = null;
+      window._currentUser = null;
+      window._currentUserData = null;
+      document.getElementById('authOverlay').style.display = 'flex';
+      document.getElementById('userInfoBar').style.display = 'none';
+      document.body.style.paddingTop = '24px';
+    }
+  });
+
+  // ===== LOAD NOTIFICATION =====
+  async function loadNotification() {
+    try {
+      const q = query(collection(db, 'notifications'), where('pinned', '==', true), orderBy('createdAt', 'desc'), limit(1));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const data = snap.docs[0].data();
+        const banner = document.getElementById('notifyBanner');
+        document.getElementById('notifyBannerText').textContent = data.text;
+        banner.style.display = 'flex';
+      }
+    } catch(e) {}
+  }
+
+  // ===== ADD LOG =====
+  async function addLog(action, email, detail) {
+    try {
+      await addDoc(collection(db, 'logs'), {
+        action, email, detail,
+        timestamp: serverTimestamp()
+      });
+    } catch(e) {}
+  }
+  window._addLog = addLog;
+
+  // ===== AUTH ACTIONS =====
+  window.doLogin = async function() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPassword').value;
+    if (!email || !pass) { showAuthNotice('⚠️ Vui lòng nhập đầy đủ thông tin.', false); return; }
+    try {
+      const settings = await getSystemSettings();
+      if (settings.loginLocked) { showAuthNotice('❌ Đăng nhập đang bị khóa.', false); return; }
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch(e) {
+      const msgs = {
+        'auth/user-not-found':'❌ Tài khoản không tồn tại.',
+        'auth/wrong-password':'❌ Sai mật khẩu.',
+        'auth/invalid-email':'❌ Email không hợp lệ.',
+        'auth/invalid-credential':'❌ Email hoặc mật khẩu không đúng.',
+        'auth/too-many-requests':'⚠️ Quá nhiều lần thử. Vui lòng thử lại sau.'
+      };
+      showAuthNotice(msgs[e.code] || ('❌ Lỗi: ' + e.message), false);
+    }
+  };
+
+  window.doRegister = async function() {
+    const email = document.getElementById('regEmail').value.trim();
+    const pass = document.getElementById('regPassword').value;
+    const pass2 = document.getElementById('regPassword2').value;
+    if (!email || !pass) { showAuthNotice('⚠️ Vui lòng nhập đầy đủ thông tin.', false); return; }
+    if (pass !== pass2) { showAuthNotice('❌ Mật khẩu xác nhận không khớp.', false); return; }
+    if (pass.length < 6) { showAuthNotice('❌ Mật khẩu cần ít nhất 6 ký tự.', false); return; }
+    try {
+      const settings = await getSystemSettings();
+      if (settings.registerLocked) { showAuthNotice('❌ Đăng ký hiện đang bị khóa.', false); return; }
+      await createUserWithEmailAndPassword(auth, email, pass);
+    } catch(e) {
+      const msgs = {
+        'auth/email-already-in-use':'❌ Email này đã được sử dụng.',
+        'auth/invalid-email':'❌ Email không hợp lệ.',
+        'auth/weak-password':'❌ Mật khẩu quá yếu.'
+      };
+      showAuthNotice(msgs[e.code] || ('❌ Lỗi: ' + e.message), false);
+    }
+  };
+
+  window.doGoogleLogin = async function() {
+    try {
+      const settings = await getSystemSettings();
+      if (settings.loginLocked) { showAuthNotice('❌ Đăng nhập đang bị khóa.', false); return; }
+      await signInWithPopup(auth, googleProvider);
+    } catch(e) {
+      if (e.code !== 'auth/popup-closed-by-user') showAuthNotice('❌ Lỗi đăng nhập Google: ' + e.message, false);
+    }
+  };
+
+  window.doLogout = async function() {
+    await signOut(auth);
+  };
+
+  // ===== SWITCH TAB =====
+  window.switchTab = function(tab) {
+    const loginForm = document.getElementById('formLogin');
+    const regForm = document.getElementById('formRegister');
+    const tabL = document.getElementById('tabLogin');
+    const tabR = document.getElementById('tabRegister');
+    document.getElementById('authNotice').style.display = 'none';
+    if (tab === 'login') {
+      loginForm.style.display = 'flex';
+      regForm.style.display = 'none';
+      tabL.style.background = 'linear-gradient(135deg,#8aa4ff,#aef1c8)';
+      tabL.style.color = '#0d1020';
+      tabR.style.background = 'transparent';
+      tabR.style.color = '#8a8f98';
+    } else {
+      loginForm.style.display = 'none';
+      regForm.style.display = 'flex';
+      tabR.style.background = 'linear-gradient(135deg,#8aa4ff,#aef1c8)';
+      tabR.style.color = '#0d1020';
+      tabL.style.background = 'transparent';
+      tabL.style.color = '#8a8f98';
+    }
+  };
+
+  // ===== SHOW AUTH NOTICE =====
+  function showAuthNotice(msg, ok) {
+    const el = document.getElementById('authNotice');
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.style.background = ok ? 'rgba(0,255,100,0.12)' : 'rgba(255,80,80,0.12)';
+    el.style.color = ok ? '#9ef0c2' : '#ff8f8f';
+    el.style.border = ok ? '1px solid rgba(0,255,100,0.25)' : '1px solid rgba(255,80,80,0.25)';
+  }
+
+  // ===== CODE SYSTEM =====
+  window.showCodeModal = function() {
+    const m = document.getElementById('codeModal');
+    m.style.display = 'flex';
+    document.getElementById('codeInput').value = '';
+    document.getElementById('codeNotice').style.display = 'none';
+  };
+  window.hideCodeModal = function() {
+    document.getElementById('codeModal').style.display = 'none';
+  };
+
+  window.submitCode = async function() {
+    if (!currentUser || !currentUserData) { hideCodeModal(); return; }
+    const code = document.getElementById('codeInput').value.trim().toUpperCase();
+    if (!code) return;
+
+    const codeRef = doc(db, 'codes', code);
+    const codeSnap = await getDoc(codeRef);
+    const notice = document.getElementById('codeNotice');
+    notice.style.display = 'block';
+
+    if (!codeSnap.exists()) {
+      notice.textContent = '❌ Mã code không tồn tại.';
+      notice.style.background = 'rgba(255,80,80,0.12)';
+      notice.style.color = '#ff8f8f';
+      return;
+    }
+
+    const codeData = codeSnap.data();
+
+    // Check expiry
+    if (codeData.expiryDate) {
+      const exp = new Date(codeData.expiryDate);
+      if (new Date() > exp) {
+        notice.textContent = '❌ Mã code đã hết hạn.';
+        notice.style.background = 'rgba(255,80,80,0.12)';
+        notice.style.color = '#ff8f8f';
+        return;
+      }
+    }
+
+    // Check max uses
+    if (codeData.maxUses > 0 && codeData.usedCount >= codeData.maxUses) {
+      notice.textContent = '❌ Mã code đã hết lượt sử dụng.';
+      notice.style.background = 'rgba(255,80,80,0.12)';
+      notice.style.color = '#ff8f8f';
+      return;
+    }
+
+    // Check user-only restriction
+    if (codeData.userOnly && currentUserData.role !== 'user') {
+      notice.textContent = '❌ Mã này chỉ dành cho User thường.';
+      notice.style.background = 'rgba(255,80,80,0.12)';
+      notice.style.color = '#ff8f8f';
+      return;
+    }
+
+    // Check one per user
+    const userRef = doc(db, 'users', currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    const userData = userSnap.data();
+    const usedCodes = userData.usedCodes || [];
+    if (codeData.onePerUser && usedCodes.includes(code)) {
+      notice.textContent = '❌ Bạn đã sử dụng mã code này rồi.';
+      notice.style.background = 'rgba(255,80,80,0.12)';
+      notice.style.color = '#ff8f8f';
+      return;
+    }
+
+    // Apply reward
+    let rewardMsg = '';
+
+if (codeData.type === 'avatar') {
+  await updateDoc(userRef, {
+    avatar: codeData.reward
+  });
+  rewardMsg = 'Avatar đặc biệt';
+
+} else if (codeData.type === 'badge') {
+  await updateDoc(userRef, {
+    badge: codeData.reward
+  });
+  rewardMsg = 'Huy hiệu: ' + codeData.reward;
+}
+
+    // Update usedCodes & code usedCount
+    await updateDoc(userRef, { usedCodes: [...usedCodes, code] });
+    await updateDoc(codeRef, { usedCount: increment(1) });
+
+    await addLog('code', currentUser.email, `Nhập code ${code} - Nhận: ${rewardMsg}`);
+
+    notice.textContent = `✅ Nhập code thành công! Bạn nhận được: ${rewardMsg}`;
+    notice.style.background = 'rgba(0,255,100,0.12)';
+    notice.style.color = '#9ef0c2';
+    notice.style.border = '1px solid rgba(0,255,100,0.25)';
+  };
+
+  // ===== CONTROL PANEL =====
+  window.showControlPanel = function() {
+    const role = currentUserData?.role;
+    const hasSupport = currentUserData?.hasSupport;
+    if (role !== 'owner' && !(role === 'dev' && hasSupport)) return;
+    document.getElementById('controlPanelModal').style.display = 'flex';
+    switchCpTab('users');
+    if (role === 'owner') {
+      document.getElementById('cpTabCodes').style.display = 'inline-flex';
+      document.getElementById('cpTabSettings').style.display = 'inline-flex';
+    }
+  };
+
+  window.hideControlPanel = function() {
+    document.getElementById('controlPanelModal').style.display = 'none';
+  };
+
+  window.switchCpTab = function(tab) {
+    ['cpTabUsers','cpTabNotify','cpTabCodes','cpTabLogs','cpTabSettings'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    document.querySelectorAll('.cp-tab-btn').forEach(b => {
+      b.style.background = 'transparent';
+      b.style.color = '#8a8f98';
+      b.style.border = '1px solid rgba(255,255,255,0.15)';
+    });
+    const activeId = 'cpTab' + tab.charAt(0).toUpperCase() + tab.slice(1);
+    const activeEl = document.getElementById(activeId);
+    if (activeEl) activeEl.style.display = 'flex';
+
+    if (tab === 'logs') loadLogs();
+    if (tab === 'codes') loadCodes();
+    if (tab === 'settings') loadSystemSettings();
+  };
+
+  // SEARCH USERS
+  window.cpSearchUser = async function() {
+    const q = document.getElementById('cpSearchInput').value.trim().toLowerCase();
+    const resultsEl = document.getElementById('cpUserResults');
+    resultsEl.innerHTML = '<div style="color:#8a8f98;font-size:13px;">Đang tìm...</div>';
+
+    try {
+      const usersQ = query(collection(db, 'users'), where('email', '>=', q), where('email', '<=', q + ''), limit(20));
+      const snap = await getDocs(usersQ);
+      resultsEl.innerHTML = '';
+      if (snap.empty) {
+        resultsEl.innerHTML = '<div style="color:#8a8f98;font-size:13px;">Không tìm thấy tài khoản.</div>';
+        return;
+      }
+      snap.docs.forEach(d => {
+        const u = d.data();
+        const uid = d.id;
+        const div = document.createElement('div');
+        div.style.cssText = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
+        const banStatus = u.banned ? '🚫 Banned' : '✅ Active';
+        const viewerRole = currentUserData.role;
+        const canBan = viewerRole === 'owner' || (viewerRole === 'dev' && u.role === 'user');
+        const canGrant = viewerRole === 'owner';
+
+        div.innerHTML = `
+          <div style="flex:1;min-width:120px;">
+            <div style="color:#eef2ff;font-size:13px;font-weight:600;">${u.email}</div>
+            <div style="color:#8a8f98;font-size:11px;margin-top:2px;">Vai trò: ${u.role} ${u.hasSupport ? '+ Support':''} | Coin: ${u.coin||0} | ${banStatus}</div>
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">
+            ${canBan && !u.banned ? `
+              <select id="banDur_${uid}" style="background:#0d1020;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:4px;color:#eef2ff;font-size:11px;">
+                ${viewerRole==='owner' ? '<option value="perm">Vĩnh viễn</option>' : ''}
+                <option value="3600000">1 giờ</option>
+                <option value="21600000">6 giờ</option>
+                <option value="43200000">12 giờ</option>
+                <option value="86400000">1 ngày</option>
+                <option value="259200000">3 ngày</option>
+                <option value="604800000">7 ngày</option>
+              </select>
+              <button onclick="cpBanUser('${uid}','${u.email}')" style="border:0;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;background:rgba(255,100,100,0.2);color:#ff8f8f;">🚫 Ban</button>
+            ` : ''}
+            ${canBan && u.banned ? `<button onclick="cpUnbanUser('${uid}','${u.email}')" style="border:0;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;background:rgba(0,255,100,0.15);color:#9ef0c2;">✅ Gỡ Ban</button>` : ''}
+            ${canGrant ? `
+              <select id="roleSet_${uid}" style="background:#0d1020;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:4px;color:#eef2ff;font-size:11px;">
+                <option value="user" ${u.role==='user'?'selected':''}>User</option>
+                <option value="dev" ${u.role==='dev'?'selected':''}>Dev</option>
+               
+              </select>
+              <label style="display:flex;align-items:center;gap:3px;color:#eef2ff;font-size:11px;">
+                <input type="checkbox" id="supportSet_${uid}" ${u.hasSupport?'checked':''}/> Support
+              </label>
+              <button onclick="cpSetRole('${uid}','${u.email}')" style="border:0;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;background:rgba(124,156,255,0.2);color:#8aa4ff;">💾 Lưu Role</button>
+              <button onclick="cpDeleteUser('${uid}','${u.email}')" style="border:0;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;background:rgba(255,0,0,0.15);color:#ff4444;">🗑 Xóa TK</button>
+            ` : ''}
+          </div>
+        `;
+        resultsEl.appendChild(div);
+      });
+    } catch(e) {
+      resultsEl.innerHTML = '<div style="color:#ff8f8f;font-size:13px;">Lỗi: ' + e.message + '</div>';
+    }
+  };
+
+  window.cpBanUser = async function(uid, email) {
+    const sel = document.getElementById('banDur_' + uid);
+    const dur = sel ? sel.value : 'perm';
+    const role = currentUserData.role;
+    // Dev cannot ban dev or owner
+    const uSnap = await getDoc(doc(db, 'users', uid));
+    const uData = uSnap.data();
+    if (role === 'dev' && (uData.role === 'dev' || uData.role === 'owner')) {
+      showCpNotice('❌ Dev không thể ban Dev hoặc Owner.', false); return;
+    }
+    const updates = { banned: true };
+    if (dur === 'perm') { updates.banExpiry = null; }
+    else { updates.banExpiry = new Date(Date.now() + parseInt(dur)); }
+    await updateDoc(doc(db, 'users', uid), updates);
+    await addLog('ban', currentUser.email, `Ban tài khoản ${email} | Thời hạn: ${dur === 'perm' ? 'Vĩnh viễn' : dur + 'ms'}`);
+    showCpNotice('✅ Đã ban ' + email, true);
+    cpSearchUser();
+  };
+
+  window.cpUnbanUser = async function(uid, email) {
+    const uSnap = await getDoc(doc(db, 'users', uid));
+    const uData = uSnap.data();
+    if (currentUserData.role === 'dev' && uData.role !== 'user') {
+      showCpNotice('❌ Dev chỉ gỡ ban được User.', false); return;
+    }
+    await updateDoc(doc(db, 'users', uid), { banned: false, banExpiry: null });
+    await addLog('unban', currentUser.email, `Gỡ ban tài khoản ${email}`);
+    showCpNotice('✅ Đã gỡ ban ' + email, true);
+    cpSearchUser();
+  };
+
+  window.cpSetRole = async function(uid, email) {
+    if (currentUserData.role !== 'owner') return;
+    const role = document.getElementById('roleSet_' + uid).value;
+    const hasSupport = document.getElementById('supportSet_' + uid).checked;
+    await updateDoc(doc(db, 'users', uid), { role, hasSupport });
+    await addLog('role', currentUser.email, `Đổi role ${email} thành ${role} ${hasSupport ? '+ Support' : ''}`);
+    showCpNotice('✅ Đã cập nhật role cho ' + email, true);
+    cpSearchUser();
+  };
+
+  window.cpDeleteUser = async function(uid, email) {
+    if (currentUserData.role !== 'owner') return;
+    if (!confirm(`Xác nhận xóa tài khoản ${email}?`)) return;
+    await deleteDoc(doc(db, 'users', uid));
+    await addLog('delete', currentUser.email, `Xóa tài khoản ${email}`);
+    showCpNotice('✅ Đã xóa tài khoản ' + email, true);
+    cpSearchUser();
+  };
+
+  // NOTIFY
+  window.cpSendNotify = async function(pin) {
+    if (currentUserData.role !== 'owner' && !(currentUserData.role === 'dev' && currentUserData.hasSupport)) return;
+    const text = document.getElementById('cpNotifyText').value.trim();
+    if (!text) { showCpNotice('⚠️ Vui lòng nhập nội dung thông báo.', false); return; }
+    await addDoc(collection(db, 'notifications'), {
+      text, pinned: pin, createdAt: serverTimestamp(), createdBy: currentUser.email
+    });
+    await addLog('notify', currentUser.email, `Gửi thông báo: "${text}" ${pin?'(Ghim)':''}`);
+    showCpNotice('✅ Đã gửi thông báo!', true);
+    document.getElementById('cpNotifyText').value = '';
+    if (pin) {
+      const banner = document.getElementById('notifyBanner');
+      document.getElementById('notifyBannerText').textContent = text;
+      banner.style.display = 'flex';
+    }
+  };
+
+  // CODES
+  async function loadCodes() {
+    if (currentUserData.role !== 'owner') return;
+    const list = document.getElementById('cpCodeList');
+    list.innerHTML = '<div style="color:#8a8f98;font-size:13px;">Đang tải...</div>';
+    const snap = await getDocs(query(collection(db, 'codes'), orderBy('createdAt', 'desc'), limit(50)));
+    list.innerHTML = '';
+    if (snap.empty) { list.innerHTML = '<div style="color:#8a8f98;font-size:13px;">Chưa có code nào.</div>'; return; }
+    snap.docs.forEach(d => {
+      const c = d.data();
+      const div = document.createElement('div');
+      div.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;';
+      div.innerHTML = `
+        <div>
+          <span style="color:#ffd700;font-weight:700;font-family:monospace;">${d.id}</span>
+          <span style="color:#8a8f98;font-size:12px;margin-left:8px;">${c.type} | ${c.reward} | ${c.usedCount||0}/${c.maxUses||'∞'} lượt</span>
+          ${c.expiryDate ? '<span style="color:#ff8f8f;font-size:11px;margin-left:6px;">HH: ' + c.expiryDate + '</span>' : ''}
+        </div>
+        <button onclick="cpDeleteCode('${d.id}')" style="border:0;background:rgba(255,0,0,0.15);color:#ff4444;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:700;">🗑</button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  window.cpCreateCode = async function() {
+    if (currentUserData.role !== 'owner') return;
+    const name = document.getElementById('cpCodeName').value.trim().toUpperCase();
+    const type = document.getElementById('cpCodeType').value;
+    const reward = document.getElementById('cpCodeReward').value.trim();
+    const maxUses = parseInt(document.getElementById('cpCodeMax').value) || 0;
+    const expiry = document.getElementById('cpCodeExpiry').value;
+    const userOnly = document.getElementById('cpCodeUserOnly').checked;
+    const onePerUser = document.getElementById('cpCodeOnePerUser').checked;
+
+    if (!name || !reward) { showCpNotice('⚠️ Vui lòng nhập tên code và phần thưởng.', false); return; }
+
+    await setDoc(doc(db, 'codes', name), {
+      type, reward, maxUses, usedCount: 0,
+      expiryDate: expiry || null,
+      userOnly, onePerUser,
+      createdAt: serverTimestamp(),
+      createdBy: currentUser.email
+    });
+    await addLog('createCode', currentUser.email, `Tạo code ${name} | ${type}: ${reward}`);
+    showCpNotice('✅ Đã tạo code ' + name, true);
+    loadCodes();
+  };
+
+  window.cpDeleteCode = async function(code) {
+    if (!confirm('Xóa code ' + code + '?')) return;
+    await deleteDoc(doc(db, 'codes', code));
+    showCpNotice('✅ Đã xóa code ' + code, true);
+    loadCodes();
+  };
+
+  // LOGS
+  async function loadLogs() {
+    const list = document.getElementById('cpLogsList');
+    list.innerHTML = '<div style="color:#8a8f98;font-size:13px;">Đang tải...</div>';
+    const snap = await getDocs(query(collection(db, 'logs'), orderBy('timestamp', 'desc'), limit(100)));
+    list.innerHTML = '';
+    if (snap.empty) { list.innerHTML = '<div style="color:#8a8f98;font-size:13px;">Chưa có nhật ký.</div>'; return; }
+    snap.docs.forEach(d => {
+      const l = d.data();
+      const div = document.createElement('div');
+      div.style.cssText = 'background:rgba(255,255,255,0.03);border-left:3px solid rgba(124,156,255,0.5);border-radius:6px;padding:8px 12px;font-size:12px;color:#eef2ff;';
+      const ts = l.timestamp ? l.timestamp.toDate().toLocaleString('vi-VN') : '?';
+      div.innerHTML = `<span style="color:#8a8f98;">${ts}</span> <b>${l.action}</b> | ${l.email} — ${l.detail}`;
+      list.appendChild(div);
+    });
+  }
+
+  // SYSTEM SETTINGS
+  async function loadSystemSettings() {
+    if (currentUserData.role !== 'owner') return;
+    const settings = await getSystemSettings();
+    const container = document.getElementById('cpSystemToggles');
+    container.innerHTML = '';
+
+    const toggles = [
+      { key: 'loginLocked', label: '🔒 Khóa Đăng Nhập' },
+      { key: 'registerLocked', label: '🔒 Khóa Đăng Ký' },
+      { key: 'avatarLocked', label: '🖼 Khóa Đổi Avatar' },
+      { key: 'discordLocked', label: '💬 Khóa Liên Kết Discord' }
+    ];
+
+    toggles.forEach(t => {
+      const div = document.createElement('div');
+      div.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 14px;';
+      const isOn = settings[t.key];
+      div.innerHTML = `
+        <span style="color:#eef2ff;font-size:13px;">${t.label}</span>
+        <button onclick="cpToggleSetting('${t.key}', ${!isOn})" style="
+          border:0;border-radius:8px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;
+          background:${isOn ? 'rgba(255,100,100,0.2)' : 'rgba(0,255,100,0.12)'};
+          color:${isOn ? '#ff8f8f' : '#9ef0c2'};
+        ">${isOn ? '🔴 BẬT' : '🟢 TẮT'}</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  window.cpToggleSetting = async function(key, value) {
+    if (currentUserData.role !== 'owner') return;
+    const ref = doc(db, 'system', 'settings');
+    await updateDoc(ref, { [key]: value });
+    await addLog('settings', currentUser.email, `Đổi cài đặt ${key} = ${value}`);
+    loadSystemSettings();
+  };
+
+  function showCpNotice(msg, ok) {
+    const el = document.getElementById('cpNotice');
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.style.background = ok ? 'rgba(0,255,100,0.12)' : 'rgba(255,80,80,0.12)';
+    el.style.color = ok ? '#9ef0c2' : '#ff8f8f';
+    setTimeout(() => { el.style.display = 'none'; }, 3000);
+  }
+</script>
+<!-- Thông báo của Owner -->
+<div id="ownerNotifyModal" style="display:none; position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.6); align-items:center; justify-content:center;">
+  <div style="background:#fff3cd; color:#856404; padding:20px 40px; border-radius:15px; border:2px solid #ffeeba; font-weight:bold; font-size:18px; text-align:center; box-shadow:0 0 20px rgba(255,193,7,0.5);">
+    <div id="ownerNotifyText"></div>
+    <button onclick="document.getElementById('ownerNotifyModal').style.display='none'" style="margin-top:15px; cursor:pointer;">Đóng</button>
+  </div>
+</div>
+
+<!-- Datalist cho gợi ý tài khoản -->
+<datalist id="userSuggestions"></datalist>
 </body>
 </html>
