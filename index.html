@@ -886,59 +886,37 @@
 </div>
 
 <!-- NOTIFICATIONS DISPLAY -->
-<div id="notifyBanner" style="
+<div id="notifyBanner"
+style="
 display:none;
 position:fixed;
-top:25px;
+top:15%;
 left:50%;
 transform:translateX(-50%);
 z-index:99999999;
-min-width:620px;
-max-width:85%;
 pointer-events:none;
+user-select:none;
 ">
-
-<div id="notifyBannerBox" style="
-background:linear-gradient(180deg,#fff3a3,#ffd95d,#ffca28);
-border:3px solid #fff8c7;
-border-radius:12px;
-padding:18px 28px;
-box-shadow:
-0 0 20px rgba(255,210,0,.55),
-0 0 45px rgba(255,210,0,.25);
-text-align:center;
-">
-
-<div style="
-font-size:24px;
-font-weight:900;
-color:#6d4b00;
-text-shadow:1px 1px white;
-margin-bottom:12px;
-">
-
-⭐ THÔNG BÁO TỪ OWNER ⭐
-
-</div>
 
 <div
 id="notifyBannerText"
 style="
-font-size:20px;
+font-size:34px;
 font-weight:900;
-line-height:1.8;
+color:#FFD700;
+text-align:center;
 white-space:pre-wrap;
-color:#5a3b00;
-text-shadow:1px 1px white;
+font-family:Arial,sans-serif;
+text-shadow:
+2px 2px 0 #000,
+0 0 8px #000,
+0 0 18px #000,
+0 0 28px rgba(255,215,0,.5);
 ">
 
 </div>
 
 </div>
-
-</div>
-
-
 <style>
 @keyframes rbAuth {
   0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}
@@ -2580,22 +2558,22 @@ if (!data.pinned) {
 
 banner.style.display = "block";
 
-banner.animate(
-        [
-          {
-            opacity: 0,
-            transform: "translateY(-10px)"
-          },
-          {
-            opacity: 1,
-            transform: "translateY(0px)"
-          }
-        ],
-        {
-          duration: 250,
-          easing: "ease-out"
-        }
-      );
+text.animate(
+[
+{
+opacity:0,
+transform:"translateY(-15px) scale(.95)"
+},
+{
+opacity:1,
+transform:"translateY(0px) scale(1)"
+}
+],
+{
+duration:300,
+easing:"ease-out"
+}
+);
 
       clearTimeout(banner.hideTimer);
 
